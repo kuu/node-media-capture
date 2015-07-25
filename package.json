@@ -1,0 +1,54 @@
+{
+  "name": "node-media-capture-api",
+  "version": "1.0.0",
+  "description": "Node.js implementation of Media Capture API and MediaStream Recording API.",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint src/ test/",
+    "clean": "npm run clean-src && npm run clean-test",
+    "clean-src": "rm -fR transpiled/src ; mkdir -p transpiled/src",
+    "clean-test": "rm -fR transpiled/test ; mkdir -p transpiled/test",
+    "clean-samples": "rm -fR transpiled/samples; mkdir -p transpiled/samples",
+    "release-build": "npm run clean-browser && npm run release-bundle && npm run minify",
+    "transpile": "npm run transpile-test && npm run transpile-samples && npm run transpile-src",
+    "transpile-src": "npm run clean-src && babel src/ --out-dir transpiled/src/",
+    "transpile-test": "npm run clean-test && babel test/ --out-dir transpiled/test/",
+    "transpile-samples": "npm run clean-samples && babel samples/ --out-dir transpiled/samples/",
+    "build-native": "node-gyp configure build",
+    "test": "npm run build-native && npm run lint && npm run transpile && mocha transpiled/test/spec/**/*.js",
+    "kon": "kontainer",
+    "copy": "cp samples/server/*.html transpiled/samples/server/",
+    "start": "npm run build-native && npm run lint && npm run transpile && npm run copy && node transpiled/samples/server/index.js",
+    "capture": "node transpiled/samples/server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kuu/node-media-capture-api.git"
+  },
+  "keywords": [
+    "multimedia",
+    "video",
+    "audio",
+    "media capture"
+  ],
+  "author": "Kuu Miyazaki",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kuu/node-media-capture-api/issues"
+  },
+  "homepage": "https://github.com/kuu/node-media-capture-api",
+  "devDependencies": {
+    "babel": "5.8.5",
+    "babel-eslint": "^3.1.21",
+    "eslint": "^0.24.0",
+    "mocha": "^2.2.5",
+    "power-assert": "^0.11.0",
+    "sinon": "^1.14.1"
+  },
+  "dependencies": {
+    "express": "^4.13.1",
+    "kontainer-js": "^1.2.0",
+    "nan": "^1.8.4",
+    "socket.io": "^1.3.6"
+  }
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=yes">
+    <meta charset="utf-8">
+    <title>Pepper Interphone Demo - Reception</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      .camera { float: left; }
+      .chat { float: left; height: 540px}
+      .main:after { content: ""; display: block; clear: both; }
+      .reception-camera { width: 360px; height: 270px; }
+      .entrance-camera { width: 360px; height: 270px; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      img { width: 100%; height: auto; }
+      video { width: auto; height: 100%; }
+      div button { width: 200px; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Pepper Interphone Demo<h1>
+    </div>
+    <div class="main">
+      <div class="camera">
+        <div class="reception-camera"></div>
+        <div class="entrance-camera"></div>
+      </div>
+      <div class="chat">
+        <ul id="messages"></ul>
+      </div>
+      <button>Start</button>
+    </div>
+    <div class="footer">
+      <form action="" disabled>
+        <input id="m" autocomplete="off" /><button>Send</button>
+      </form>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var socket = io(),
+          receptionDiv = document.querySelector('.reception-camera'),
+          entranceDiv = document.querySelector('.entrance-camera'),
+          button = document.querySelectorAll('button')[0],
+          form = document.querySelectorAll('form')[0],
+          input = document.querySelectorAll('input')[0],
+          ul = document.querySelectorAll('ul')[0];
+
+      button.addEventListener('click', function () {
+        socket.emit('start');
+        socket.on('reception-camera', function (e) {
+          console.log('reception-camera: buf.size=', e.data.byteLength);
+          var img = new Image();
+          img.src = URL.createObjectURL(new Blob([e.data], {type: 'image/jpeg'}));
+          img.addEventListener('load', function () {
+            receptionDiv.innerHTML = '<h2>Reception</h2>';
+            receptionDiv.appendChild(img);
+          }, false);
+        });
+
+        navigator.webkitGetUserMedia({video: true},
+          function (stream) {
+            var video = document.createElement('video');
+            video.src = URL.createObjectURL(stream);
+            video.addEventListener('canplay', function onCanPlay() {
+              video.removeEventListener('canplay', onCanPlay, false);
+              entranceDiv.innerHTML = '<h2>Entrance</h2>';
+              entranceDiv.appendChild(video);
+              video.play();
+              var canvas = document.createElement('canvas');
+              var w = 320, h = 240;
+              canvas.width = w;
+              canvas.height = h;
+              console.log('canvas size w=' + w + ', h=' + h);
+              var ctx = canvas.getContext('2d');
+              setInterval(function () {
+                ctx.drawImage(video, 0, 0, w, h); 
+                var imageData = ctx.getImageData(0, 0, w, h).data;
+                socket.emit('entrance-camera-raw', imageData.buffer);
+              }, 1000);
+            }, false);
+          },
+          function (e) {
+            console.error('Unable to get access to the local camera.');
+          }
+        );
+
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          socket.emit('chat message', '[visitor]   ' + input.value);
+        }, false);
+
+        socket.on('chat message', function (msg) {
+          var li = document.createElement('li');
+          li.textContent = msg;
+          ul.appendChild(li);
+        });
+
+        form.disabled = false;
+        button.parentNode.removeChild(button);
+      }, false);
+    </script>
+  </body>
+</html>
