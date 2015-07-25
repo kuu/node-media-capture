@@ -11,8 +11,8 @@ Currently supports the following APIs:
 
 ###Specs
 
-[Media Capture and Streams](http://w3c.github.io/mediacapture-main/)
-[MediaStream Recording](http://w3c.github.io/mediacapture-record/MediaRecorder.html)
+* [Media Capture and Streams](http://w3c.github.io/mediacapture-main/)
+* [MediaStream Recording](http://w3c.github.io/mediacapture-record/MediaRecorder.html)
 
 ###Details
 
@@ -58,10 +58,11 @@ With separate browsers:
 * Go to http://localhost:8080/reception
 * Go to http://localhost:8080/entrance
 
-##API
+##Usage
 
+See the [spec](http://w3c.github.io/mediacapture-main/) for the details.
 
-```
+```js
 import navigator from '../../..';
 import MediaRecorder from '../../src/MediaRecorder';
 
