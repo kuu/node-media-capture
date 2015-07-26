@@ -1,4 +1,4 @@
-# node-media-capture-api
+# node-media-capture
 Node.js implementation of the W3C Media Capture and Streams
 
 ##Features
@@ -17,10 +17,12 @@ Currently supports the following APIs:
 ###Details
 
 * Currently supports Mac OS X only. (tested on MBP + Yesemite.)
-* Currently supports vide tracks only. (audio is being implemented.)
-* Media data is compressed in the native addon.
+* Currently supports video tracks only. (audio is being implemented.)
+* Media streams are intended to be compressed in the native addon.
 
 ##Install
+
+###Mac OS X
 
 In case you don't have Homebrew:
 
@@ -40,7 +42,7 @@ Make sure that the following libs are installed:
 * /usr/local/lib/libswscale.a
 * /usr/local/lib/libx264.a
 
-Install dependencies:
+Install the dependencies:
 
 ```
 $ npm install
