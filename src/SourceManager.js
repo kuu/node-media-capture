@@ -146,7 +146,6 @@ export default class SourceManager extends EventTarget {
     }
 
     for (let source of sources) {
-      source.reference(trackId);
       trackEntries.set(trackId, new Entry(source));
       return source;
     }
@@ -221,6 +220,7 @@ export default class SourceManager extends EventTarget {
     if (entry) {
       let list = entry.sink;
       if (!list) {
+        entry.source.reference(trackId);
         list = entry.sink = [];
       }
       list.push(sink);
@@ -239,6 +239,7 @@ export default class SourceManager extends EventTarget {
         if (index !== -1) {
           list.splice(index, 1);
           if (list.length === 0) {
+            entry.source.dereference(trackId);
             entry.sink = null;
           }
         }

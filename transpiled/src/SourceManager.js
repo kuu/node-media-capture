@@ -259,7 +259,6 @@ var SourceManager = (function (_EventTarget) {
         for (var _iterator4 = sources[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
           var source = _step4.value;
 
-          source.reference(trackId);
           trackEntries.set(trackId, new Entry(source));
           return source;
         }
@@ -365,6 +364,7 @@ var SourceManager = (function (_EventTarget) {
       if (entry) {
         var list = entry.sink;
         if (!list) {
+          entry.source.reference(trackId);
           list = entry.sink = [];
         }
         list.push(sink);
@@ -385,6 +385,7 @@ var SourceManager = (function (_EventTarget) {
           if (index !== -1) {
             list.splice(index, 1);
             if (list.length === 0) {
+              entry.source.dereference(trackId);
               entry.sink = null;
             }
           }
