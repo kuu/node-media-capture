@@ -18,13 +18,8 @@ var _ = require('../../..');
 
 var _2 = _interopRequireDefault(_);
 
-var _srcMediaRecorder = require('../../src/MediaRecorder');
-
-var _srcMediaRecorder2 = _interopRequireDefault(_srcMediaRecorder);
-
-var _kontainerJs = require('kontainer-js');
-
-var _kontainerJs2 = _interopRequireDefault(_kontainerJs);
+var navigator = _2['default'].navigator;
+var MediaRecorder = _2['default'].MediaRecorder;
 
 var app = (0, _express2['default'])(),
     port = process.env.PORT || 8080,
@@ -69,8 +64,8 @@ if (require.main === module) {
       socket.on('start', function () {
         console.log('\tcapture request');
 
-        _2['default'].mediaDevices.getUserMedia({ video: true }).then(function (stream) {
-          recorder = new _srcMediaRecorder2['default'](stream);
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+          recorder = new MediaRecorder(stream);
           recorder.ondataavailable = function (buf) {
             console.log('----- Captured from the reception camera. size=' + buf.length);
             socket.emit('reception-camera', { data: buf });

@@ -2,15 +2,16 @@
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _powerAssert = require('power-assert');
+
+var _powerAssert2 = _interopRequireDefault(_powerAssert);
+
 var _ = require('../../..');
 
 var _2 = _interopRequireDefault(_);
 
-var _srcImageCapture = require('../../src/ImageCapture');
-
-var _srcImageCapture2 = _interopRequireDefault(_srcImageCapture);
-
-var _powerAssert = require('power-assert');
+var navigator = _2['default'].navigator;
+var ImageCapture = _2['default'].ImageCapture;
 
 /*global describe, it, beforeEach, afterEach*/
 
@@ -26,13 +27,11 @@ interface ImageCapture {
 };
 */
 
-var _powerAssert2 = _interopRequireDefault(_powerAssert);
-
 describe('ImageCapture', function () {
   var videoTrack;
 
   beforeEach(function (done) {
-    _2['default'].mediaDevices.getUserMedia({ video: true }).then(function (v) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function (v) {
       videoTrack = v.getVideoTracks()[0];
       done();
     }, function (e) {
@@ -56,14 +55,14 @@ describe('ImageCapture', function () {
   };
 
   it('has readonly members', function () {
-    var cap = new _srcImageCapture2['default'](videoTrack);
+    var cap = new ImageCapture(videoTrack);
     _powerAssert2['default'].equal(canWrite(cap, 'photoCapabilities'), false);
     _powerAssert2['default'].equal(canWrite(cap, 'videoStreamTrack'), false);
     _powerAssert2['default'].equal(canWrite(cap, 'previewStream'), false);
   });
 
   it('can revceive data', function (done) {
-    var cap = new _srcImageCapture2['default'](videoTrack);
+    var cap = new ImageCapture(videoTrack);
     cap.takePhoto().then(function (blob) {
       _powerAssert2['default'].notEqual(blob, null);
       done();

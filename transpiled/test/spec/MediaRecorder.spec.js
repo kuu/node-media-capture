@@ -2,15 +2,16 @@
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
+var _powerAssert = require('power-assert');
+
+var _powerAssert2 = _interopRequireDefault(_powerAssert);
+
 var _ = require('../../..');
 
 var _2 = _interopRequireDefault(_);
 
-var _srcMediaRecorder = require('../../src/MediaRecorder');
-
-var _srcMediaRecorder2 = _interopRequireDefault(_srcMediaRecorder);
-
-var _powerAssert = require('power-assert');
+var navigator = _2['default'].navigator;
+var MediaRecorder = _2['default'].MediaRecorder;
 
 /*global describe, it, beforeEach, afterEach*/
 
@@ -36,13 +37,11 @@ interface MediaRecorder : EventTarget {
 };
 */
 
-var _powerAssert2 = _interopRequireDefault(_powerAssert);
-
 describe('MediaRecorder', function () {
   var stream;
 
   beforeEach(function (done) {
-    _2['default'].mediaDevices.getUserMedia({ video: true }).then(function (v) {
+    navigator.mediaDevices.getUserMedia({ video: true }).then(function (v) {
       stream = v;
       done();
     }, function (e) {
@@ -69,7 +68,7 @@ describe('MediaRecorder', function () {
   };
 
   it('has readonly members', function () {
-    var rec = new _srcMediaRecorder2['default'](stream);
+    var rec = new MediaRecorder(stream);
     _powerAssert2['default'].equal(canWrite(rec, 'stream'), false);
     _powerAssert2['default'].equal(canWrite(rec, 'mimeType'), false);
     _powerAssert2['default'].equal(canWrite(rec, 'state'), false);
@@ -83,7 +82,7 @@ describe('MediaRecorder', function () {
   });
 
   it('can revceive data', function (done) {
-    var rec = new _srcMediaRecorder2['default'](stream);
+    var rec = new MediaRecorder(stream);
     var i = 0;
     rec.ondataavailable = function (data) {
       console.log('Yay!', data);

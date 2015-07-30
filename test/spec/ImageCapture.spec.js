@@ -1,6 +1,8 @@
-import navigator from '../../..';
-import ImageCapture from '../../src/ImageCapture';
 import assert from 'power-assert';
+import mediaCapture from '../../..';
+
+let navigator = mediaCapture.navigator;
+let ImageCapture = mediaCapture.ImageCapture;
 
 /*global describe, it, beforeEach, afterEach*/
 

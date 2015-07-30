@@ -1,9 +1,10 @@
 import path from 'path';
 import express from 'express';
 import socketIO from 'socket.io';
-import navigator from '../../..';
-import MediaRecorder from '../../src/MediaRecorder';
-import Kontainer from 'kontainer-js';
+import mediaCapture from '../../..';
+
+let navigator = mediaCapture.navigator;
+let MediaRecorder = mediaCapture.MediaRecorder;
 
 let app = express(),
     port = process.env.PORT || 8080,

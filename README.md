@@ -65,8 +65,10 @@ With separate browsers:
 See the [spec](http://w3c.github.io/mediacapture-main/) for the details.
 
 ```js
-import navigator from '../../..';
-import MediaRecorder from '../../src/MediaRecorder';
+import NMC from 'node-media-capture';
+
+let navigator = NMC.navigator;
+let MediaRecorder = NMC.MediaRecorder;
 
 navigator.mediaDevices.getUserMedia({video: true})
 .then(
