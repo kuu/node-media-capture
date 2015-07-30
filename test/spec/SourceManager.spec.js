@@ -24,10 +24,10 @@ describe('SourceManager', function () {
       var constraints, camera, capability, settings;
 
       capability = {
-        width: {min: 640, max: 1920, defaultSetting: 1280},
-        height: {min: 480, max: 1280, defaultSetting: 720},
-        frameRate: {min: 15, max: 60, defaultSetting: 30},
-        aspectRatio: {oneOf: [3 / 2, 4 / 3, 16 / 9], defaultSetting: 16 / 9},
+        width: {min: 640, max: 1920, defaultValue: 1280},
+        height: {min: 480, max: 1280, defaultValue: 720},
+        frameRate: {min: 15, max: 60, defaultValue: 30},
+        aspectRatio: {oneOf: [3 / 2, 4 / 3, 16 / 9], defaultValue: 16 / 9},
         facingMode: {
           oneOf: [
             Camera.FACING_MODE_USER,
@@ -35,7 +35,7 @@ describe('SourceManager', function () {
             Camera.FACING_MODE_LEFT,
             Camera.FACING_MODE_RIGHT
           ],
-          defaultSetting: Camera.FACING_MODE_USER
+          defaultValue: Camera.FACING_MODE_USER
         }
       };
 
@@ -123,7 +123,7 @@ describe('SourceManager', function () {
       .then(() => {
         settings = camera.getSettings();
         assert.equal(settings.width, 650);
-        assert.equal(settings.height, capability.height.defaultSetting);
+        assert.equal(settings.height, capability.height.defaultValue);
         done();
       });
 
@@ -142,8 +142,8 @@ describe('SourceManager', function () {
       manager.applyConstraints(camera, constraints)
       .then(() => {
         settings = camera.getSettings();
-        assert.equal(settings.width, capability.width.defaultSetting);
-        assert.equal(settings.height, capability.height.defaultSetting);
+        assert.equal(settings.width, capability.width.defaultValue);
+        assert.equal(settings.height, capability.height.defaultValue);
         done();
       });
 
@@ -158,7 +158,7 @@ describe('SourceManager', function () {
       .then(() => {
         settings = camera.getSettings();
         assert.equal(settings.width, 800);
-        assert.equal(settings.height, capability.height.defaultSetting);
+        assert.equal(settings.height, capability.height.defaultValue);
         done();
       });
 
@@ -243,8 +243,8 @@ describe('SourceManager', function () {
           camera.emit('data', dummyData);
         }
       });
-      assert(sink1.onData.calledWith({data: dummyData}), true);
-      assert(sink2.onData.calledWith({data: dummyData}), true);
+      assert(sink1.onData.calledWith(dummyData), true);
+      assert(sink2.onData.calledWith(dummyData), true);
       manager.enableSink('track-id-002', false);
       manager.sources.get(Source.TYPE_CAMERA).forEach((camera) => {
         if (camera.deviceId === source1.deviceId ||
@@ -252,8 +252,8 @@ describe('SourceManager', function () {
           camera.emit('data', dummyData);
         }
       });
-      assert(sink1.onData.calledWith({data: dummyData}), true);
-      assert(sink2.onData.calledWith({data: null}), true);
+      assert(sink1.onData.calledWith(dummyData), true);
+      assert(sink2.onData.calledWith(null), true);
       manager.removeSink('track-id-001', sink1);
       manager.removeSink('track-id-002', sink2);
       manager.sources.get(Source.TYPE_CAMERA).forEach((camera) => {

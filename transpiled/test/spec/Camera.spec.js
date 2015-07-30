@@ -41,23 +41,23 @@ describe('Camera', function () {
     _powerAssert2['default'].equal(c.groupId, void 0);
     _powerAssert2['default'].deepEqual(c.getCapabilities(), _srcCamera2['default'].DEFAULT_CAPABILITY);
     _powerAssert2['default'].deepEqual(c.getSettings(), {
-      width: _srcCamera2['default'].DEFAULT_CAPABILITY.width.defaultSetting,
-      height: _srcCamera2['default'].DEFAULT_CAPABILITY.height.defaultSetting,
-      frameRate: _srcCamera2['default'].DEFAULT_CAPABILITY.frameRate.defaultSetting,
-      aspectRatio: _srcCamera2['default'].DEFAULT_CAPABILITY.aspectRatio.defaultSetting,
-      facingMode: _srcCamera2['default'].DEFAULT_CAPABILITY.facingMode.defaultSetting
+      width: _srcCamera2['default'].DEFAULT_CAPABILITY.width.defaultValue,
+      height: _srcCamera2['default'].DEFAULT_CAPABILITY.height.defaultValue,
+      frameRate: _srcCamera2['default'].DEFAULT_CAPABILITY.frameRate.defaultValue,
+      aspectRatio: _srcCamera2['default'].DEFAULT_CAPABILITY.aspectRatio.defaultValue,
+      facingMode: _srcCamera2['default'].DEFAULT_CAPABILITY.facingMode.defaultValue
     });
   });
 
   it('can be initialized with specific options', function () {
     var capability = {
-      width: { min: 1, max: 9999, defaultSetting: 640 },
-      height: { min: 1, max: 9999, defaultSetting: 480 },
-      frameRate: { min: 1, max: 999, defaultSetting: 30 },
-      aspectRatio: { oneOf: [3 / 2, 4 / 3, 16 / 9], defaultSetting: 4 / 3 },
+      width: { min: 1, max: 9999, defaultValue: 640 },
+      height: { min: 1, max: 9999, defaultValue: 480 },
+      frameRate: { min: 1, max: 999, defaultValue: 30 },
+      aspectRatio: { oneOf: [3 / 2, 4 / 3, 16 / 9], defaultValue: 4 / 3 },
       facingMode: {
         oneOf: [_srcCamera2['default'].FACING_MODE_USER, _srcCamera2['default'].FACING_MODE_ENVIRONMENT, _srcCamera2['default'].FACING_MODE_LEFT, _srcCamera2['default'].FACING_MODE_RIGHT],
-        defaultSetting: _srcCamera2['default'].FACING_MODE_RIGHT
+        defaultValue: _srcCamera2['default'].FACING_MODE_RIGHT
       }
     },
         c = new _srcCamera2['default'](hal, 'deviceId-01', 'groupId-01', capability);
@@ -67,11 +67,11 @@ describe('Camera', function () {
     _powerAssert2['default'].equal(c.groupId, 'groupId-01');
     _powerAssert2['default'].deepEqual(c.getCapabilities(), capability);
     _powerAssert2['default'].deepEqual(c.getSettings(), {
-      width: capability.width.defaultSetting,
-      height: capability.height.defaultSetting,
-      frameRate: capability.frameRate.defaultSetting,
-      aspectRatio: capability.aspectRatio.defaultSetting,
-      facingMode: capability.facingMode.defaultSetting
+      width: capability.width.defaultValue,
+      height: capability.height.defaultValue,
+      frameRate: capability.frameRate.defaultValue,
+      aspectRatio: capability.aspectRatio.defaultValue,
+      facingMode: capability.facingMode.defaultValue
     });
   });
 
@@ -83,9 +83,9 @@ describe('Camera', function () {
         defaultCapability = _srcCamera2['default'].DEFAULT_CAPABILITY;
 
     settings = camera.getSettings();
-    _powerAssert2['default'].equal(settings.width, defaultCapability.width.defaultSetting);
-    _powerAssert2['default'].equal(settings.height, defaultCapability.height.defaultSetting);
-    _powerAssert2['default'].equal(settings.aspectRatio, defaultCapability.aspectRatio.defaultSetting);
+    _powerAssert2['default'].equal(settings.width, defaultCapability.width.defaultValue);
+    _powerAssert2['default'].equal(settings.height, defaultCapability.height.defaultValue);
+    _powerAssert2['default'].equal(settings.aspectRatio, defaultCapability.aspectRatio.defaultValue);
 
     constraints = {
       width: 1280,

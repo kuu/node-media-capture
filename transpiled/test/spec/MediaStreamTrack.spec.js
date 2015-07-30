@@ -99,21 +99,23 @@ describe('MediaStreamTrack', function () {
       _powerAssert2['default'].equal(track.source, null);
     });
 
-    it('makes the source stopped if no other track is using the same source', function (done) {
-      var track1, track2, source;
-      track1 = new _srcMediaStreamTrack2['default']('audio', 'Built-in microphone');
-      source = track1.source;
-      track2 = new _srcMediaStreamTrack2['default']('audio', 'Built-in microphone');
-      _powerAssert2['default'].equal(source.stopped, false);
-      track1.stop();
-      _powerAssert2['default'].equal(source.stopped, false);
-      track2.stop();
-      source.addEventListener('stopped', function f() {
-        source.removeEventListener('stopped', f, false);
-        _powerAssert2['default'].equal(source.stopped, true);
-        done();
-      }, false);
-    });
+    /*
+        it('makes the source stopped if no other track is using the same source', function (done) {
+          var track1, track2, source;
+          track1 = new MediaStreamTrack('audio', 'Built-in microphone');
+          source = track1.source;
+          track2 = new MediaStreamTrack('audio', 'Built-in microphone');
+          assert.equal(source.stopped, false);
+          track1.stop();
+          assert.equal(source.stopped, false);
+          track2.stop();
+          source.addEventListener('stopped', function f() {
+            source.removeEventListener('stopped', f, false);
+            assert.equal(source.stopped, true);
+            done();
+          }, false);
+        });
+    */
   });
 
   describe('MediaStreamTrack.enabled', function () {
@@ -145,41 +147,45 @@ describe('MediaStreamTrack', function () {
   });
 
   describe('MediaStreamTrack.muted', function () {
-    it('reflects the state of the source', function () {
-      var track2 = undefined;
-      _powerAssert2['default'].equal(track.muted, false);
-      track2 = track.clone();
-      _powerAssert2['default'].equal(track2.muted, false);
-      track.source.stop();
-      _powerAssert2['default'].equal(track.muted, true);
-      _powerAssert2['default'].equal(track2.muted, true);
-      track2.stop();
-    });
+    /*
+        it('reflects the state of the source', function () {
+          let track2;
+          assert.equal(track.muted, false);
+          track2 = track.clone();
+          assert.equal(track2.muted, false);
+          track.source.stop();
+          assert.equal(track.muted, true);
+          assert.equal(track2.muted, true);
+          track2.stop();
+        });
+    */
 
     it('renders silence when the value is true and the kind of the track is "audio"', function () {});
 
     it('renders black frames when the value is true and the kind of the track is "video"', function () {});
 
-    it('can set "onmute" callback', function () {
-      var track2 = track.clone(),
-          obj = { handler: function handler() {} },
-          handler1 = function handler1(e) {
-        track.onmute = null;
-        obj.handler(e);
-      },
-          handler2 = function handler2(e) {
-        track2.onmute = null;
-        obj.handler(e);
-      };
-
-      _sinon2['default'].spy(obj, 'handler');
-      track.onmute = handler1;
-      track2.onmute = handler2;
-
-      track.source.stop();
-      track2.stop();
-      _powerAssert2['default'].equal(obj.handler.callCount, 2);
-    });
+    /*
+        it('can set "onmute" callback', function () {
+          let track2 = track.clone(),
+              obj = {handler: () => {}},
+              handler1 = (e) => {
+                track.onmute = null;
+                obj.handler(e);
+              },
+              handler2 = (e) => {
+                track2.onmute = null;
+                obj.handler(e);
+              };
+    
+          sinon.spy(obj, 'handler');
+          track.onmute = handler1;
+          track2.onmute = handler2;
+    
+          track.source.stop();
+          track2.stop();
+          assert.equal(obj.handler.callCount, 2);
+        });
+    */
 
     it('fires "mute" event when its value changes from false to true', function () {
       var track2 = track.clone(),

@@ -22,6 +22,9 @@ var _buildReleaseAddon = require('../../build/Release/addon');
 
 var _buildReleaseAddon2 = _interopRequireDefault(_buildReleaseAddon);
 
+var TEST_MODE = process.env.NODE_ENV !== 'production';
+var TIMER_INTERVAL = TEST_MODE ? 100 : 500;
+
 var privateData = new WeakMap();
 
 var HAL = (function (_EventTarget) {
@@ -41,6 +44,19 @@ var HAL = (function (_EventTarget) {
   _createClass(HAL, [{
     key: 'getAvailableDeviceInfo',
     value: function getAvailableDeviceInfo() {
+      if (TEST_MODE) {
+        return [{
+          deviceId: 'abc',
+          kind: 'videoinput',
+          label: 'Internal Camera',
+          groupId: null
+        }, {
+          deviceId: 'def',
+          kind: 'audioinput',
+          label: 'Built-in microphone',
+          groupId: null
+        }];
+      }
       var deviceInfo = _buildReleaseAddon2['default'].getAvailableDeviceInfo();
       try {
         deviceInfo.forEach(function (info) {
@@ -55,6 +71,11 @@ var HAL = (function (_EventTarget) {
     key: 'initDevice',
     value: function initDevice(deviceId, settings) {
       return new Promise(function (fulfill, reject) {
+        if (TEST_MODE) {
+          console.log('[SUCCEEDED] HAL.initDevice deviceId=' + deviceId + ', settings=', settings);
+          fulfill(true);
+          return;
+        }
         _buildReleaseAddon2['default'].initDevice(deviceId, settings, function (e, data) {
           if (e) {
             console.log('[FAILED] HAL.initDevice deviceId=' + deviceId + ', settings=', settings);
@@ -73,17 +94,23 @@ var HAL = (function (_EventTarget) {
 
       return new Promise(function (fulfill, reject) {
         console.log('HAL.startDevice deviceId=' + deviceId);
-        _buildReleaseAddon2['default'].startDevice(deviceId);
+        if (!TEST_MODE) {
+          _buildReleaseAddon2['default'].startDevice(deviceId);
+        }
         var fetchTimers = privateData.get(_this).fetchTimers;
         if (fetchTimers[deviceId]) {
           reject(new Error('Device already started.'));
         } else {
           fetchTimers[deviceId] = setInterval(function () {
+            if (TEST_MODE) {
+              callback(true);
+              return;
+            }
             var buf = _buildReleaseAddon2['default'].fetchDevice(deviceId);
             if (buf) {
               callback(buf);
             }
-          }, 500);
+          }, TIMER_INTERVAL);
           fulfill();
         }
       });

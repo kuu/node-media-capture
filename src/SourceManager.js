@@ -58,7 +58,7 @@ function prepareSources(manager) {
                sink.onData(data);
              } else {
                //  zero-information-content
-               sink.onData({data: item.source.getZeroInformationContent()});
+               sink.onData(item.source.getZeroInformationContent());
              }
            }
          }

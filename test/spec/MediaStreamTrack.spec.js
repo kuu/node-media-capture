@@ -87,6 +87,7 @@ describe('MediaStreamTrack', function () {
       assert.equal(track.source, null);
     });
 
+/*
     it('makes the source stopped if no other track is using the same source', function (done) {
       var track1, track2, source;
       track1 = new MediaStreamTrack('audio', 'Built-in microphone');
@@ -102,6 +103,7 @@ describe('MediaStreamTrack', function () {
         done();
       }, false);
     });
+*/
 
   });
 
@@ -136,6 +138,7 @@ describe('MediaStreamTrack', function () {
   });
 
   describe('MediaStreamTrack.muted', function () {
+/*
     it('reflects the state of the source', function () {
       let track2;
       assert.equal(track.muted, false);
@@ -146,6 +149,7 @@ describe('MediaStreamTrack', function () {
       assert.equal(track2.muted, true);
       track2.stop();
     });
+*/
 
     it('renders silence when the value is true and the kind of the track is "audio"', function () {
     });
@@ -153,6 +157,7 @@ describe('MediaStreamTrack', function () {
     it('renders black frames when the value is true and the kind of the track is "video"', function () {
     });
 
+/*
     it('can set "onmute" callback', function () {
       let track2 = track.clone(),
           obj = {handler: () => {}},
@@ -173,6 +178,7 @@ describe('MediaStreamTrack', function () {
       track2.stop();
       assert.equal(obj.handler.callCount, 2);
     });
+*/
 
     it('fires "mute" event when its value changes from false to true', function () {
       let track2 = track.clone(),
