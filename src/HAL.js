@@ -12,7 +12,8 @@ export default class HAL extends EventTarget {
     this.supportedConstraints = addon.getSupportedConstraints();
     privateData.set(this, {
       supportedCodecs: addon.getSupportedCodecs(),
-      fetchTimers: {}
+      fetchTimers: {},
+      retryTimers: {}
     });
   }
 
@@ -120,6 +121,32 @@ export default class HAL extends EventTarget {
     return new Promise((fulfill) => {
       console.log('HAL.configureDevice deviceId=' + deviceId + ', settings=', settings);
       fulfill();
+    });
+  }
+
+  takeSnapshot(deviceId) {
+    return new Promise((fulfill, reject) => {
+      console.log('HAL.takeSnapshot deviceId=' + deviceId);
+      if (!TEST_MODE) {
+        addon.takeSnapshot(deviceId);
+      }
+      let retryTimers = privateData.get(this).retryTimers;
+      if (retryTimers[deviceId]) {
+        reject(new Error('Device currently taking snapshot.'));
+      } else {
+        retryTimers[deviceId] = setInterval(() => {
+          if (TEST_MODE) {
+            fulfill(true);
+            return;
+          }
+          let buf = addon.fetchSnapshot(deviceId);
+          if (buf) {
+            clearInterval(retryTimers[deviceId]);
+            retryTimers[deviceId] = void 0;
+            fulfill(buf);
+          }
+        }, 100);
+      }
     });
   }
 

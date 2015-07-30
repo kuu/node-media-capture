@@ -37,7 +37,8 @@ var HAL = (function (_EventTarget) {
     this.supportedConstraints = _buildReleaseAddon2['default'].getSupportedConstraints();
     privateData.set(this, {
       supportedCodecs: _buildReleaseAddon2['default'].getSupportedCodecs(),
-      fetchTimers: {}
+      fetchTimers: {},
+      retryTimers: {}
     });
   }
 
@@ -154,6 +155,35 @@ var HAL = (function (_EventTarget) {
       return new Promise(function (fulfill) {
         console.log('HAL.configureDevice deviceId=' + deviceId + ', settings=', settings);
         fulfill();
+      });
+    }
+  }, {
+    key: 'takeSnapshot',
+    value: function takeSnapshot(deviceId) {
+      var _this3 = this;
+
+      return new Promise(function (fulfill, reject) {
+        console.log('HAL.takeSnapshot deviceId=' + deviceId);
+        if (!TEST_MODE) {
+          _buildReleaseAddon2['default'].takeSnapshot(deviceId);
+        }
+        var retryTimers = privateData.get(_this3).retryTimers;
+        if (retryTimers[deviceId]) {
+          reject(new Error('Device currently taking snapshot.'));
+        } else {
+          retryTimers[deviceId] = setInterval(function () {
+            if (TEST_MODE) {
+              fulfill(true);
+              return;
+            }
+            var buf = _buildReleaseAddon2['default'].fetchSnapshot(deviceId);
+            if (buf) {
+              clearInterval(retryTimers[deviceId]);
+              retryTimers[deviceId] = void 0;
+              fulfill(buf);
+            }
+          }, 100);
+        }
       });
     }
   }, {
