@@ -18,7 +18,7 @@
     "test": "npm run build-native && npm run lint && npm run transpile && mocha transpiled/test/spec/**/*.js",
     "kon": "kontainer",
     "copy": "cp samples/server/*.html transpiled/samples/server/",
-    "start": "npm run build-native && npm run lint && npm run transpile && npm run copy && NODE_ENV=production node transpiled/samples/server/index.js",
+    "start": "npm run build-native && npm run lint && npm run transpile && npm run copy && NODE_ENV=production node transpiled/samples/server/test.js",
     "capture": "node transpiled/samples/server/index.js"
   },
   "repository": {

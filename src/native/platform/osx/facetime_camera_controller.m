@@ -25,7 +25,6 @@
   spsData:(const uint8_t *) sps spsDataLength:(size_t) spsLength
   ppsData:(const uint8_t *) pps ppsDataLength:(size_t) ppsLength
   sampleList:(const size_t *) samples sampleListLength:(size_t) sampleNum;
-//- (int) flushEncoder;
 @end
 
 @implementation FaceTimeCameraController
@@ -284,7 +283,6 @@ const int kFrameNum = 45;
     return;
   }
 
-#if 0
   // got an image
   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
 
@@ -307,11 +305,13 @@ const int kFrameNum = 45;
     [self flushEncoder];
     frameCounter = 0;
   }
-#endif
+
+#if 0
   if (++frameCounter >= kFrameNum) {
     [self captureStillImage];
     frameCounter = 0;
   }
+#endif
 }
 
 #include <libavutil/imgutils.h>
@@ -340,6 +340,7 @@ static int initEncoder() {
   param.i_log_level = X264_LOG_NONE;
 
   /* Apply profile restrictions. */
+  //if ((ret = x264_param_apply_profile(&param, "high")) < 0) {
   if ((ret = x264_param_apply_profile(&param, "baseline")) < 0) {
     av_log(NULL, AV_LOG_ERROR, "x264_param_apply_profile failed.\n");
     return ret;
@@ -410,8 +411,6 @@ static void printNAL(x264_nal_t *nal) {
 
 #endif
 
-#if 0
-
 static int convertPixelFormat(const enum AVPixelFormat srcFmt, const int srcW, const int srcH, const uint8_t *srcData, const enum AVPixelFormat dstFmt, const int dstW, const int dstH, x264_image_t *dstData) {
   struct SwsContext *sws_ctx;
   int ret;
@@ -456,7 +455,7 @@ static int encodeFrame(const uint8_t *data, const int width, const int height) {
     return ret;
   }
 
-  //printf("input frame=%dx%d\n", width, height);
+  //printf("[%d x %d] => [%d x %d]\n", width, height, frameWidth, frameHeight);
   //if ((ret = convertPixelFormat(AV_PIX_FMT_RGB32, width, height, data, AV_PIX_FMT_YUV420P, frameWidth, frameHeight, &pic.img)) < 0) {
   if ((ret = convertPixelFormat(AV_PIX_FMT_BGRA, width, height, data, AV_PIX_FMT_YUV420P, frameWidth, frameHeight, &pic.img)) < 0) {
     x264_picture_clean(&pic);
@@ -518,11 +517,12 @@ static int encodeFrame(const uint8_t *data, const int width, const int height) {
           pps = (uint8_t *)malloc(p->i_payload);
           memcpy(pps, p->p_payload, p->i_payload);
           ppsLen = p->i_payload;
-        } else if (p->i_type == NAL_SLICE || p->i_type == NAL_SLICE_IDR) {
+	}
+        //} else if (p->i_type == NAL_SLICE || p->i_type == NAL_SLICE_IDR) {
           totalPayloadSize += p->i_payload;
           nal_list[currentNALCount] = p;
           sample_size_list[currentNALCount++] = p->i_payload;
-        }
+	//}
 
         if (maxNALCount <= currentNALCount) {
           maxNALCount += DEFAULT_NAL_COUNT;
@@ -564,7 +564,5 @@ static int encodeFrame(const uint8_t *data, const int width, const int height) {
 static void termEncoder() {
   x264_encoder_close( encoder );
 }
-
-#endif
 
 @end

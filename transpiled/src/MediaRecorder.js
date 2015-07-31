@@ -57,7 +57,7 @@ var Muxer = (function () {
           constraintSet1Flag: false,
           constraintSet2Flag: false
         },
-        avcLevelIndication: 2.1,
+        avcLevelIndication: 3,
         lengthSize: 4,
         sequenceParameterSets: [{ data: metadata.sps, length: metadata.sps.length }],
         pictureParameterSets: [{ data: metadata.pps, length: metadata.pps.length }]
@@ -106,7 +106,7 @@ var Muxer = (function () {
         });
         return IsoBmff.createElement.apply(IsoBmff, ['traf', null, IsoBmff.createElement('tfhd', {
           trackId: i + 1,
-          //baseDataOffset: base,
+          baseDataOffset: base,
           defaultSampleDuration: 100,
           defaultSampleSize: 0,
           defaultSampleFlags: {
@@ -117,7 +117,7 @@ var Muxer = (function () {
             sampleIsDifferenceSample: false,
             sampleDegradationPriority: 0
           }
-        }), IsoBmff.createElement('tfdt', { baseMediaDecodeTime: 0 })].concat(_toConsumableArray(truns)));
+        }), IsoBmff.createElement('tfdt', { baseMediaDecodeTime: 0, version: 1 })].concat(_toConsumableArray(truns)));
       });
     }
   }, {
@@ -149,7 +149,7 @@ var Muxer = (function () {
         return _this.getTrackExtendsBox(track, i + 1);
       });
 
-      return IsoBmff.createElement('file', null, IsoBmff.createElement('ftyp', { majorBrand: 'mp42', compatibleBrands: ['isom', 'mp42'] }), IsoBmff.createElement.apply(IsoBmff, ['moov', null, IsoBmff.createElement('mvhd', { duration: 0, creationTime: new Date(0), modificationTime: new Date(0), timeScale: 1000, nextTrackId: this.buffer.length + 1 })].concat(_toConsumableArray(traks), [IsoBmff.createElement.apply(IsoBmff, ['mvex', null].concat(_toConsumableArray(treks)))])));
+      return IsoBmff.createElement('file', null, IsoBmff.createElement('ftyp', { majorBrand: 'isom', minorVersion: 512, compatibleBrands: ['isom', 'iso2', 'avc1', 'iso6', 'mp41'] }), IsoBmff.createElement.apply(IsoBmff, ['moov', null, IsoBmff.createElement('mvhd', { duration: 0, creationTime: new Date(0), modificationTime: new Date(0), timeScale: 1000, nextTrackId: this.buffer.length + 1 })].concat(_toConsumableArray(traks), [IsoBmff.createElement.apply(IsoBmff, ['mvex', null].concat(_toConsumableArray(treks)))])));
     }
   }, {
     key: 'getMoofSize',
@@ -297,27 +297,27 @@ var MediaRecorder = (function (_EventTarget) {
   _createClass(MediaRecorder, [{
     key: 'multiplex',
     value: function multiplex(trackId, data) {
-      var handler = this.ondataavailable;
-      if (handler) {
-        handler(data.data);
-      }
       /*
-          let buffer = privateData.get(this).buffer;
-          buffer.pushData(trackId, data);
-      
-          if (buffer.canFlush()) {
-            let handler = this.ondataavailable;
-            if (handler) {
-              if (this.needToIssueAnInitializationSegment) {
-                this.initializationSegment = this.muxer.renderInitializationSegment();
-                handler(this.initializationSegment);
-                this.needToIssueAnInitializationSegment = false;
-              }
-              handler(this.muxer.renderMediaSegment());
-            }
-            buffer.clear();
+          let handler = this.ondataavailable;
+          if (handler) {
+            handler(data.data);
           }
       */
+      var buffer = privateData.get(this).buffer;
+      buffer.pushData(trackId, data);
+
+      if (buffer.canFlush()) {
+        var handler = this.ondataavailable;
+        if (handler) {
+          if (this.needToIssueAnInitializationSegment) {
+            this.initializationSegment = this.muxer.renderInitializationSegment();
+            handler(this.initializationSegment);
+            this.needToIssueAnInitializationSegment = false;
+          }
+          handler(this.muxer.renderMediaSegment());
+        }
+        buffer.clear();
+      }
     }
   }, {
     key: 'start',

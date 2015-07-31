@@ -50,7 +50,7 @@ class Muxer {
                       constraintSet1Flag: false,
                       constraintSet2Flag: false
                     },
-                    avcLevelIndication: 2.1,
+                    avcLevelIndication: 3,
                     lengthSize: 4,
                     sequenceParameterSets: [{data: metadata.sps, length: metadata.sps.length}],
                     pictureParameterSets: [{data: metadata.pps, length: metadata.pps.length}]
@@ -110,7 +110,7 @@ class Muxer {
           'tfhd',
           {
             trackId: i + 1,
-            //baseDataOffset: base,
+            baseDataOffset: base,
             defaultSampleDuration: 100,
             defaultSampleSize: 0,
             defaultSampleFlags: {
@@ -123,7 +123,7 @@ class Muxer {
             }
           }
         ),
-        IsoBmff.createElement('tfdt', {baseMediaDecodeTime: 0}),
+        IsoBmff.createElement('tfdt', {baseMediaDecodeTime: 0, version: 1}),
         ...truns
       );
     });
@@ -149,7 +149,7 @@ class Muxer {
         treks = buffer.tracks.map((track, i) => this.getTrackExtendsBox(track, i + 1));
 
     return IsoBmff.createElement('file', null,
-      IsoBmff.createElement('ftyp', {majorBrand: 'mp42', compatibleBrands: ['isom', 'mp42']}),
+      IsoBmff.createElement('ftyp', {majorBrand: 'isom', minorVersion: 512, compatibleBrands: ['isom', 'iso2', 'avc1', 'iso6', 'mp41']}),
       IsoBmff.createElement('moov', null,
         IsoBmff.createElement('mvhd', {duration: 0, creationTime: new Date(0), modificationTime: new Date(0), timeScale: 1000, nextTrackId: this.buffer.length + 1}),
         ...traks,
@@ -279,11 +279,12 @@ export default class MediaRecorder extends EventTarget {
   }
 
   multiplex(trackId, data) {
+/*
     let handler = this.ondataavailable;
     if (handler) {
       handler(data.data);
     }
-/*
+*/
     let buffer = privateData.get(this).buffer;
     buffer.pushData(trackId, data);
 
@@ -299,7 +300,6 @@ export default class MediaRecorder extends EventTarget {
       }
       buffer.clear();
     }
-*/
   }
 
   get stream() {

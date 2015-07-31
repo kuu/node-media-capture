@@ -29,7 +29,9 @@
     </div>
     <div class="main">
       <div class="camera">
-        <div class="reception-camera"></div>
+        <div class="reception-camera">
+          <video></video>
+        </div>
         <div class="entrance-camera"></div>
       </div>
       <div class="chat">
@@ -45,23 +47,40 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io(),
-          receptionDiv = document.querySelector('.reception-camera'),
+          receptionVideo = document.querySelector('.reception-camera video'),
           entranceDiv = document.querySelector('.entrance-camera'),
           button = document.querySelectorAll('button')[0],
           form = document.querySelectorAll('form')[0],
           input = document.querySelectorAll('input')[0],
-          ul = document.querySelectorAll('ul')[0];
+          ul = document.querySelectorAll('ul')[0],
+          videoInitialized = false,
+          initSegment, mediaSegmentQueue = [];
 
       button.addEventListener('click', function () {
         socket.emit('start');
         socket.on('reception-camera', function (e) {
           console.log('reception-camera: buf.size=', e.data.byteLength);
-          var img = new Image();
-          img.src = URL.createObjectURL(new Blob([e.data], {type: 'image/jpeg'}));
-          img.addEventListener('load', function () {
-            receptionDiv.innerHTML = '<h2>Reception</h2>';
-            receptionDiv.appendChild(img);
-          }, false);
+          if (videoInitialized) {
+            mediaSegmentQueue.push(e.data);
+          } else {
+            initSegment = e.data;
+            var ms = new MediaSource();
+            ms.addEventListener('sourceopen', function () {
+              var sb = ms.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
+              sb.addEventListener('updateend', function () {
+                var mediaSegment = mediaSegmentQueue.shift();
+                if (mediaSegment) {
+                  console.log('updateend: Appending MediaSegment size=', mediaSegment.byteLength);
+                  sb.appendBuffer(mediaSegment);
+                }
+              }, false);
+              receptionVideo.play();
+              console.log('sourceopen: Appending InitSegment size=', initSegment.byteLength);
+              sb.appendBuffer(initSegment);
+            }, false);
+            receptionVideo.src = URL.createObjectURL(ms);
+            videoInitialized = true;
+          }
         });
 
         navigator.webkitGetUserMedia({video: true},
