@@ -30,8 +30,24 @@ export default class ImageCapture extends EventTarget {
   }
 
   takePhoto() {
-    let source = privateData.get(this).videoStreamTrack.source;
-    return source.hal.takeSnapshot(source.deviceId);
+    let source = privateData.get(this).videoStreamTrack.source,
+        needToRestart = false;
+    if (!source.stopped) {
+      source.stop();
+      needToRestart = true;
+    }
+    return source.hal.takeSnapshot(source.deviceId)
+      .then(
+        (d) => {
+          if (needToRestart) {
+            source.start();
+          }
+          return d;
+        },
+        (e) => {
+          throw e;
+        }
+      );
   }
 
   grabFrame() {

@@ -470,6 +470,21 @@ NAN_METHOD(ConfigureDevice) {
   NanReturnUndefined();
 }
 
+//takeSnapshot(deviceId)
+NAN_METHOD(TakeSnapshot) {
+  NanScope();
+
+  const NanUtf8String *deviceIdStr = new NanUtf8String(args[0]);
+  std::string deviceId(**deviceIdStr);
+
+  const Device* device = deviceManager->getDevice(deviceId);
+  if (!device) {
+    NanReturnUndefined();
+  } else {
+    device->TakeSnapshot();
+  }
+}
+
 //getZeroInformationContent(deviceId)
 NAN_METHOD(GetZeroInformationContent) {
   NanScope();
@@ -497,6 +512,8 @@ void Init(Handle<Object> exports) {
 			      NanNew<FunctionTemplate>(ResumeDevice)->GetFunction());
   exports->Set(NanNew<String>("configureDevice"),
 			      NanNew<FunctionTemplate>(ConfigureDevice)->GetFunction());
+  exports->Set(NanNew<String>("takeSnapshot"),
+			      NanNew<FunctionTemplate>(TakeSnapshot)->GetFunction());
   exports->Set(NanNew<String>("getZeroInformationContent"),
 			      NanNew<FunctionTemplate>(GetZeroInformationContent)->GetFunction());
 }

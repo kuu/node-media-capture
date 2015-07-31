@@ -176,11 +176,11 @@ var HAL = (function (_EventTarget) {
               fulfill(true);
               return;
             }
-            var buf = _buildReleaseAddon2['default'].fetchSnapshot(deviceId);
+            var buf = _buildReleaseAddon2['default'].fetchDevice(deviceId);
             if (buf) {
               clearInterval(retryTimers[deviceId]);
               retryTimers[deviceId] = void 0;
-              fulfill(buf);
+              fulfill(buf.data);
             }
           }, 100);
         }

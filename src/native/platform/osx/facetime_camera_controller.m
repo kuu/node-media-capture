@@ -21,7 +21,6 @@
 - (void) configureWithFrameRate:(Float64) frameRate;
 - (void) configureWithResolution:(NSString *) resolution;
 - (void) captureOutput:(AVCaptureOutput *) captureOutput didOutputSampleBuffer:(CMSampleBufferRef) sampleBuffer fromConnection:(AVCaptureConnection *) connection;
-- (void) captureStillImage;
 - (void) setFrameData:(const uint8_t *) data length:(size_t) length
   spsData:(const uint8_t *) sps spsDataLength:(size_t) spsLength
   ppsData:(const uint8_t *) pps ppsDataLength:(size_t) ppsLength
@@ -123,11 +122,9 @@ static int frameHeight = 0;
   }
 
   // Init encoder
-#if 0
   if (initEncoder() != 0) {
     return nil;
   }
-#endif
 
   frameCounter = 0;
   isPaused = YES;
@@ -317,8 +314,6 @@ const int kFrameNum = 45;
   }
 }
 
-#if 0
-
 #include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 #include <x264.h>
@@ -414,6 +409,8 @@ static void printNAL(x264_nal_t *nal) {
 }
 
 #endif
+
+#if 0
 
 static int convertPixelFormat(const enum AVPixelFormat srcFmt, const int srcW, const int srcH, const uint8_t *srcData, const enum AVPixelFormat dstFmt, const int dstW, const int dstH, x264_image_t *dstData) {
   struct SwsContext *sws_ctx;

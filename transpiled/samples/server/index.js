@@ -20,6 +20,7 @@ var _2 = _interopRequireDefault(_);
 
 var navigator = _2['default'].navigator;
 var MediaRecorder = _2['default'].MediaRecorder;
+var ImageCapture = _2['default'].ImageCapture;
 
 var app = (0, _express2['default'])(),
     port = process.env.PORT || 8080,
@@ -48,7 +49,8 @@ if (require.main === module) {
 
     var http = start(),
         io = (0, _socketIo2['default'])(http),
-        recorder = undefined;
+        recorder = undefined,
+        capture = undefined;
 
     io.on('connection', function (socket) {
 
@@ -66,6 +68,7 @@ if (require.main === module) {
 
         navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
           recorder = new MediaRecorder(stream);
+          capture = new ImageCapture(stream.getVideoTracks()[0]);
           recorder.ondataavailable = function (buf) {
             console.log('----- Captured from the reception camera. size=' + buf.length);
             socket.emit('reception-camera', { data: buf });
@@ -83,6 +86,14 @@ if (require.main === module) {
         socket.on('chat message', function (msg) {
           console.log('chat message: ' + msg);
           io.emit('chat message', msg);
+        });
+
+        socket.on('take photo', function () {
+          console.log('take photo');
+          capture.takePhoto().then(function (d) {
+            console.log('\tphoto taken');
+            io.emit('photo', { data: d });
+          });
         });
       });
     });

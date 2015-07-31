@@ -139,11 +139,11 @@ export default class HAL extends EventTarget {
             fulfill(true);
             return;
           }
-          let buf = addon.fetchSnapshot(deviceId);
+          let buf = addon.fetchDevice(deviceId);
           if (buf) {
             clearInterval(retryTimers[deviceId]);
             retryTimers[deviceId] = void 0;
-            fulfill(buf);
+            fulfill(buf.data);
           }
         }, 100);
       }

@@ -13,6 +13,7 @@ NAN_METHOD(StopDevice);
 NAN_METHOD(PauseDevice);
 NAN_METHOD(ResumeDevice);
 NAN_METHOD(ConfigureDevice);
+NAN_METHOD(TakeSnapshot);
 NAN_METHOD(GetZeroInformationContent);
 
 #endif

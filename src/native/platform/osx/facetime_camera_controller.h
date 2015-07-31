@@ -15,4 +15,5 @@
     const uint8_t * const, const size_t,
     const size_t * const, const size_t
   )) callback;
+- (void) captureStillImage;
 @end

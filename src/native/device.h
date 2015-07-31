@@ -149,6 +149,8 @@ public:
 
   virtual void StartDevice() const = 0;
 
+  virtual void TakeSnapshot() const = 0;
+
   virtual void FetchDevice(void (*callback)(const void * const, size_t, const Metadata**, const size_t)) const = 0;
 };
 

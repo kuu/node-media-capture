@@ -5,6 +5,7 @@ import mediaCapture from '../../..';
 
 let navigator = mediaCapture.navigator;
 let MediaRecorder = mediaCapture.MediaRecorder;
+let ImageCapture = mediaCapture.ImageCapture;
 
 let app = express(),
     port = process.env.PORT || 8080,
@@ -36,7 +37,7 @@ if (require.main === module) {
 
   let http = start(),
       io = socketIO(http),
-      recorder;
+      recorder, capture;
 
   io.on('connection', (socket) => {
 
@@ -56,6 +57,7 @@ if (require.main === module) {
       .then(
         (stream) => {
           recorder = new MediaRecorder(stream);
+          capture = new ImageCapture(stream.getVideoTracks()[0]);
           recorder.ondataavailable = (buf) => {
             console.log('----- Captured from the reception camera. size=' + buf.length);
             socket.emit('reception-camera', {data: buf});
@@ -75,6 +77,14 @@ if (require.main === module) {
       socket.on('chat message', (msg) => {
         console.log('chat message: ' + msg);
         io.emit('chat message', msg);
+      });
+
+      socket.on('take photo', () => {
+        console.log('take photo');
+        capture.takePhoto().then((d) => {
+          console.log('\tphoto taken');
+          io.emit('photo', {data: d});
+        });
       });
     });
   });

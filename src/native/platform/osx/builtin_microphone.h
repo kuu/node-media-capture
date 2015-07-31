@@ -25,6 +25,7 @@ public:
   std::vector<EConstraints>& GetSupportedConstraints() const;
   void InitDevice(const std::vector<const Constraint *>& settings, const std::function<void (const bool)> &callback) const;
   void StartDevice() const;
+  void TakeSnapshot() const;
   void FetchDevice(void (*callback)(const void * const, size_t, const Metadata**, const size_t)) const;
 };
 

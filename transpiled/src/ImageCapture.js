@@ -44,8 +44,20 @@ var ImageCapture = (function (_EventTarget) {
   }, {
     key: 'takePhoto',
     value: function takePhoto() {
-      var source = privateData.get(this).videoStreamTrack.source;
-      return source.hal.takeSnapshot(source.deviceId);
+      var source = privateData.get(this).videoStreamTrack.source,
+          needToRestart = false;
+      if (!source.stopped) {
+        source.stop();
+        needToRestart = true;
+      }
+      return source.hal.takeSnapshot(source.deviceId).then(function (d) {
+        if (needToRestart) {
+          source.start();
+        }
+        return d;
+      }, function (e) {
+        throw e;
+      });
     }
   }, {
     key: 'grabFrame',

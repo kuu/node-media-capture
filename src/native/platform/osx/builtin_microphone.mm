@@ -144,5 +144,8 @@ void BuiltinMicrophone::InitDevice(const std::vector<const Constraint *>& settin
 void BuiltinMicrophone::StartDevice() const {
 }
 
+void BuiltinMicrophone::TakeSnapshot() const {
+}
+
 void BuiltinMicrophone::FetchDevice(void (*callback)(const void * const, size_t, const Metadata**, const size_t)) const {
 }

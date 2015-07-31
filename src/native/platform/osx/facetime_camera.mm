@@ -158,6 +158,10 @@ void FaceTimeCamera::StartDevice() const {
   [((Impl*)pImpl_)->controller start];
 }
 
+void FaceTimeCamera::TakeSnapshot() const {
+  [((Impl*)pImpl_)->controller captureStillImage];
+}
+
 void FaceTimeCamera::FetchDevice(void (*callback)(const void * const, size_t, const Metadata**, const size_t)) const {
   return [((Impl*)pImpl_)->controller getFrameData:
     ^(const uint8_t * const data, size_t length,
