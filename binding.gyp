@@ -10,11 +10,11 @@
             'defines': [
             ],
             'sources': [
-              './src/binding.cc',
-              './src/platform/osx/device_manager.mm',
-              './src/platform/osx/facetime_camera.mm',
-              './src/platform/osx/facetime_camera_controller.m',
-              './src/platform/osx/builtin_microphone.mm'
+              './src/native/binding.cc',
+              './src/native/platform/osx/device_manager.mm',
+              './src/native/platform/osx/facetime_camera.mm',
+              './src/native/platform/osx/facetime_camera_controller.m',
+              './src/native/platform/osx/builtin_microphone.mm'
             ],
             'include_dirs': [
               '/usr/local/include',
