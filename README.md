@@ -8,6 +8,7 @@ Currently supports the following APIs:
 * MediaStreamTrack
 * MediaDevices
 * MediaRecorder (partially)
+* ImageCapture (partially)
 
 ###Specs
 
@@ -24,6 +25,7 @@ Currently supports the following APIs:
 
 * Currently supports Mac OS X only. (tested on MBP + Yosemite.)
 * Currently supports video tracks only. (audio is being implemented.)
+* `ImageCapture`'s settings are not supported.
 
 ##Install
 
@@ -62,13 +64,11 @@ Run the sample app:
 $ npm start
 ```
 
-With separate browsers:
+Open with separate browsers:
 * Go to http://localhost:8080/reception
 * Go to http://localhost:8080/entrance
 
 ##Usage
-
-See the [specs](http://w3c.github.io/mediacapture-main/) for the details.
 
 ```js
 import NMC from 'node-media-capture';
@@ -97,3 +97,5 @@ navigator.mediaDevices.getUserMedia({video: true})
   }
 );
 ```
+
+See the [specs](#specs) for the details.
