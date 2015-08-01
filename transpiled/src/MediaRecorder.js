@@ -98,7 +98,7 @@ var Muxer = (function () {
               sampleHasRedundancy: 'unknown',
               samplePaddingValue: 0,
               sampleIsDifferenceSample: false,
-              sampleDegradationPriority: 257
+              sampleDegradationPriority: 512
             }
           });
           offset += frame.data.length;
@@ -108,14 +108,14 @@ var Muxer = (function () {
           trackId: i + 1,
           baseDataOffset: base,
           defaultSampleDuration: 100,
-          defaultSampleSize: 0,
+          defaultSampleSize: truns[0].props.samples[0].size,
           defaultSampleFlags: {
             sampleDependsOn: 'unknown',
             sampleIsDependedOn: 'unknown',
             sampleHasRedundancy: 'unknown',
             samplePaddingValue: 0,
             sampleIsDifferenceSample: false,
-            sampleDegradationPriority: 0
+            sampleDegradationPriority: 257
           }
         }), IsoBmff.createElement('tfdt', { baseMediaDecodeTime: 0, version: 1 })].concat(_toConsumableArray(truns)));
       });

@@ -11,7 +11,8 @@ static std::vector<double>& getPossibleAspectRatios() {
 }
 
 static double& getDefaultAspectRatio() {
-  static double ratio = 4.0L / 3.0L;
+  //static double ratio = 4.0L / 3.0L;
+  static double ratio = 16.0L / 9.0L;
   return ratio;
 }
 
@@ -29,7 +30,7 @@ const std::vector<const Capability*>& FaceTimeCamera::getCapabilities() {
           320L, // min
           1280L, // max
           {320L, 352L, 640L, 960L, 1280L}, // values
-          960L, // defaultValue
+          640L, // defaultValue
         }
       }
     },
@@ -39,8 +40,8 @@ const std::vector<const Capability*>& FaceTimeCamera::getCapabilities() {
       	.l = {
           240L, // min
           720L, // max
-	  {240L, 288L, 480L, 540L, 720L}, // values
-          540L, // defaultValue
+	  {240L, 288L, 360L, 480L, 540L, 720L}, // values
+          360L, // defaultValue
         }
       }
     },

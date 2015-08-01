@@ -84,6 +84,8 @@ static int frameHeight = 0;
     return nil;
   }
 
+  NSLog(@"initWithDeviceId:%s frameRate:%f width:%d height:%d", deviceId, frameRate, width,  height);
+
   // Get device
   device = [AVCaptureDevice deviceWithUniqueID: deviceId];
 
@@ -121,7 +123,7 @@ static int frameHeight = 0;
   }
 
   // Init encoder
-  if (initEncoder() != 0) {
+  if (initEncoder(true) != 0) {
     return nil;
   }
 
@@ -275,7 +277,7 @@ bail:
   [stillImageOutput captureStillImageAsynchronouslyFromConnection:connection completionHandler:handler];
 }
 
-const int kFrameNum = 45;
+const int kFrameNum = 30;
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {   
@@ -321,7 +323,7 @@ const int kFrameNum = 45;
 static x264_t *encoder;
 static x264_param_t param;
 
-static int initEncoder() {
+static int initEncoder(const bool add_sps_pps) {
   int ret;
 
   /* Get default params for preset/tuning */
@@ -335,7 +337,7 @@ static int initEncoder() {
   param.i_width  = frameWidth;
   param.i_height = frameHeight;
   param.b_vfr_input = 0;
-  param.b_repeat_headers = 1;
+  param.b_repeat_headers = add_sps_pps;
   param.b_annexb = 1;
   param.i_log_level = X264_LOG_NONE;
 
@@ -517,12 +519,12 @@ static int encodeFrame(const uint8_t *data, const int width, const int height) {
           pps = (uint8_t *)malloc(p->i_payload);
           memcpy(pps, p->p_payload, p->i_payload);
           ppsLen = p->i_payload;
-	}
-        //} else if (p->i_type == NAL_SLICE || p->i_type == NAL_SLICE_IDR) {
+	//}
+        } else if (p->i_type == NAL_SLICE || p->i_type == NAL_SLICE_IDR) {
           totalPayloadSize += p->i_payload;
           nal_list[currentNALCount] = p;
           sample_size_list[currentNALCount++] = p->i_payload;
-	//}
+	}
 
         if (maxNALCount <= currentNALCount) {
           maxNALCount += DEFAULT_NAL_COUNT;
@@ -556,7 +558,7 @@ static int encodeFrame(const uint8_t *data, const int width, const int height) {
   free((void*)nal_list);
 
   termEncoder();
-  initEncoder();
+  initEncoder(false);
 
   return 0;
 }

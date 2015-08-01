@@ -104,7 +104,8 @@ var HAL = (function (_EventTarget) {
         } else {
           fetchTimers[deviceId] = setInterval(function () {
             if (TEST_MODE) {
-              callback(true);
+              var dummyData = { data: {}, metadata: { sps: {}, pps: {}, samples: [{ size: 0 }] } };
+              callback(dummyData);
               return;
             }
             var buf = _buildReleaseAddon2['default'].fetchDevice(deviceId);

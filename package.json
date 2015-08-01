@@ -19,7 +19,7 @@
     "kon": "kontainer",
     "copy": "cp samples/server/*.html transpiled/samples/server/",
     "start": "npm run build-native && npm run lint && npm run transpile && npm run copy && NODE_ENV=production node transpiled/samples/server/test.js",
-    "capture": "node transpiled/samples/server/index.js"
+    "capture": "NODE_ENV=production node transpiled/samples/server/test.js"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "express": "^4.13.1",
-    "kontainer-js": "^1.2.0",
+    "kontainer-js": "^1.2.1",
     "nan": "^1.8.4",
     "socket.io": "^1.3.6"
   }

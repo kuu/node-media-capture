@@ -76,7 +76,8 @@ export default class HAL extends EventTarget {
       } else {
         fetchTimers[deviceId] = setInterval(() => {
           if (TEST_MODE) {
-            callback(true);
+            let dummyData = {data: {}, metadata: {sps: {}, pps: {}, samples: [{size: 0}]}};
+            callback(dummyData);
             return;
           }
           let buf = addon.fetchDevice(deviceId);
