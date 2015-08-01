@@ -32,7 +32,7 @@ Currently supports the following APIs:
 ###Mac OS X
 
 ####Install ffmpeg+libx264
-In case you don't have Homebrew:
+Install Homebrew:
 
 ```
 $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
