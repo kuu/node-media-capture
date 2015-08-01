@@ -13,17 +13,23 @@ Currently supports the following APIs:
 
 * [Media Capture and Streams](http://w3c.github.io/mediacapture-main/)
 * [MediaStream Recording](http://w3c.github.io/mediacapture-record/MediaRecorder.html)
+* [Mediastream Image Capture](http://w3c.github.io/mediacapture-image/index.html)
 
-###Details
+####Difference from W3C APIs
 
-* Currently supports Mac OS X only. (tested on MBP + Yesemite.)
+* `MediaRecorder`'s `ondataavailable()` returns node's `Buffer` instead of `ArrayBuffer`.
+* `ImageCapture`'s `takePhoto()` returns node's `Buffer` instead of `Blob`.
+
+###Status
+
+* Currently supports Mac OS X only. (tested on MBP + Yosemite.)
 * Currently supports video tracks only. (audio is being implemented.)
-* Media streams are intended to be compressed in the native addon.
 
 ##Install
 
 ###Mac OS X
 
+####Install ffmpeg+libx264
 In case you don't have Homebrew:
 
 ```
@@ -42,7 +48,7 @@ Make sure that the following libs are installed:
 * /usr/local/lib/libswscale.a
 * /usr/local/lib/libx264.a
 
-Install the dependencies:
+####Install npm dependencies:
 
 ```
 $ npm install
@@ -50,7 +56,7 @@ $ npm install
 
 ##Run
 
-Run the sample app (office interphone):
+Run the sample app:
 
 ```
 $ npm start
@@ -62,21 +68,29 @@ With separate browsers:
 
 ##Usage
 
-See the [spec](http://w3c.github.io/mediacapture-main/) for the details.
+See the [specs](http://w3c.github.io/mediacapture-main/) for the details.
 
 ```js
 import NMC from 'node-media-capture';
 
-let navigator = NMC.navigator;
-let MediaRecorder = NMC.MediaRecorder;
+let navigator = NMC.navigator,
+    MediaRecorder = NMC.MediaRecorder,
+    ImageCapture = NMC.ImageCapture;
 
 navigator.mediaDevices.getUserMedia({video: true})
 .then(
   (stream) => {
-    recorder = new MediaRecorder(stream);
+    // Video capture
+    let recorder = new MediaRecorder(stream);
     recorder.ondataavailable = (buf) => {
-      console.log('----- Captured from the FaceTime camera. size=' + buf.length);
+      console.log('----- Video captured. size=' + buf.length);
     };
+
+    // Image capture
+    let capture = new ImageCapture(stream.getVideoTracks()[0]);
+    capture.takePhoto().then((buf) => {
+      console.log('----- Image captured. size=' + buf.length);
+    });
   },
   (e) => {
     throw e;
