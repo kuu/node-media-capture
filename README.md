@@ -38,7 +38,7 @@ In case you don't have Homebrew:
 $ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 ```
 
-In case you don't have ffmpeg:
+Install ffmpeg:
 
 ```
 $ brew install ffmpeg --with-libfaac --with-libopenjpeg --with-openssl --with-libvo-aacenc --with-libx264
