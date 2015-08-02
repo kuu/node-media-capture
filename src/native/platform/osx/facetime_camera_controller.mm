@@ -42,16 +42,16 @@ static int frameHeight = 0;
   [frameDataLock lock];
 
   if (frameData) {
-    free((void*) frameData);
+    //free((void*) frameData);
   }
   if (spsData) {
-    free((void*) spsData);
+    //free((void*) spsData);
   }
   if (ppsData) {
-    free((void*) ppsData);
+    //free((void*) ppsData);
   }
   if (sampleList) {
-    free((void*) sampleList);
+    //free((void*) sampleList);
   }
   frameData = data;
   frameDataLength = length;
@@ -123,7 +123,7 @@ static int frameHeight = 0;
   }
 
   // Init encoder
-  encoder = new H264Encoder(width, height, 30, 5000, true, 0);
+  encoder = new H264Encoder(1280, 720, width, height, 30, 5000, true, 0);
 
   frameCounter = 0;
   isPaused = YES;

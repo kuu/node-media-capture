@@ -1,6 +1,7 @@
 #include <mutex>
 #import <CoreFoundation/CoreFoundation.h>
-#import <CoreVideo/CoreVideo.h>
+//#import <CoreVideo/CoreVideo.h>
+#import <Foundation/Foundation.h>
 #include <VideoToolbox/VideoToolbox.h>
 
 #include "h264_encoder.h"
@@ -40,18 +41,16 @@ void vtCallback(void *outputCallbackRefCon,
     CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 0, &sps, &spsSize, &parmCount, nullptr );
     CMVideoFormatDescriptionGetH264ParameterSetAtIndex(format, 1, &pps, &ppsSize, &parmCount, nullptr );
 
-    std::unique_ptr<uint8_t[]> sps_buf (new uint8_t[spsSize + 4]) ;
-    std::unique_ptr<uint8_t[]> pps_buf (new uint8_t[ppsSize + 4]) ;
+    //spsSize -= 1;
 
-    memcpy(&sps_buf[4], sps, spsSize);
-    spsSize+=4 ;
-    memcpy(&sps_buf[0], &spsSize, 4);
-    memcpy(&pps_buf[4], pps, ppsSize);
-    ppsSize += 4;
-    memcpy(&pps_buf[0], &ppsSize, 4);
+    std::unique_ptr<uint8_t[]> sps_buf (new uint8_t[spsSize]) ;
+    std::unique_ptr<uint8_t[]> pps_buf (new uint8_t[ppsSize]) ;
 
-    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSPS, (uint8_t*)sps_buf.get(),spsSize, pts.value, dts.value);
-    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitPPS, (uint8_t*)pps_buf.get(),ppsSize, pts.value, dts.value);
+    memcpy(&sps_buf[0], sps, spsSize);
+    memcpy(&pps_buf[0], pps, ppsSize);
+
+    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSPS, (uint8_t*)sps_buf.get(), spsSize, pts.value, dts.value);
+    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitPPS, (uint8_t*)pps_buf.get(), ppsSize, pts.value, dts.value);
   }
         
   char* bufferData;
@@ -61,8 +60,10 @@ void vtCallback(void *outputCallbackRefCon,
   ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitFrame, (uint8_t*)bufferData,size, pts.value, dts.value);
 }
 
-H264Encoder::H264Encoder(int frame_w, int frame_h, int fps, int bitrate, bool useBaseline, int ctsOffset)
- : m_frameW(frame_w), m_frameH(frame_h), m_fps(fps), m_bitrate(bitrate), m_ctsOffset(ctsOffset), m_forceKeyframe(false),
+H264Encoder::H264Encoder(int inputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline, int ctsOffset)
+ : m_inputFrameW(inputFrameW), m_inputFrameH(inputFrameH),
+  m_outputFrameW(outputFrameW), m_outputFrameH(outputFrameH),
+  m_fps(fps), m_bitrate(bitrate), m_ctsOffset(ctsOffset), m_forceKeyframe(false),
   sps(nullptr), spsLen(0), pps(nullptr), ppsLen(0),
   samples((const uint8_t **)malloc(sizeof(uint8_t*) * DEFAULT_SAMPLE_COUNT)),
   sampleByteLength(0),
@@ -212,7 +213,7 @@ void H264Encoder::flushCompressedData(void *client)
   const uint8_t *buf, *p_buf;
   buf = (const uint8_t*)malloc(sampleByteLength);
   p_buf =buf;
-  for (int i = 0; i < sampleCount; i++) {
+  for (unsigned i = 0; i < sampleCount; i++) {
     int len = sampleSizeList[i];
     memcpy((void *)p_buf, samples[i], len);
     p_buf += len;
@@ -276,18 +277,28 @@ void H264Encoder::setupCompressionSession(bool useBaseline)
 
   VTCompressionSessionRef session = nullptr;
 
-  err = VTCompressionSessionCreate(
+  @autoreleasepool {
+
+    NSDictionary* pixelBufferOptions = @{
+      (NSString*) kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_32BGRA),
+      (NSString*) kCVPixelBufferWidthKey: @(m_inputFrameW),
+      (NSString*) kCVPixelBufferHeightKey: @(m_inputFrameH),
+      (NSString*) kCVPixelBufferIOSurfacePropertiesKey : @{}
+    };
+
+    err = VTCompressionSessionCreate(
       kCFAllocatorDefault,
-      m_frameW,
-      m_frameH,
+      m_outputFrameW,
+      m_outputFrameH,
       kCMVideoCodecType_H264,
       encoderSpecifications,
-      NULL,
+      (__bridge CFDictionaryRef)pixelBufferOptions,
       NULL,
       &vtCallback,
       this,
       &session);
-            
+  }
+
   if (err == noErr) {
     m_compressionSession = session;
 
@@ -332,6 +343,7 @@ void H264Encoder::setupCompressionSession(bool useBaseline)
   }
 
   if (err == noErr) {
+    NSLog(@"!!!Finished");
     VTCompressionSessionPrepareToEncodeFrames(session);
   }
 

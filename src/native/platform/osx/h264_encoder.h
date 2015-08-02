@@ -11,7 +11,7 @@ static const size_t DEFAULT_SAMPLE_COUNT = 40;
 
 class H264Encoder {
 public:
-  H264Encoder(int frame_w, int frame_h, int fps, int bitrate, bool useBaseline = true, int ctsOffset = 0);
+  H264Encoder(int intputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline = true, int ctsOffset = 0);
   ~H264Encoder();
 
   CVPixelBufferPoolRef pixelBufferPool();
@@ -33,8 +33,10 @@ private:
 
   //std::weak_ptr<IOutput> m_output;
   void*                  m_compressionSession;
-  int                    m_frameW;
-  int                    m_frameH;
+  int                    m_inputFrameW;
+  int                    m_inputFrameH;
+  int                    m_outputFrameW;
+  int                    m_outputFrameH;
   int                    m_fps;
   int                    m_bitrate;
   int                    m_ctsOffset;
