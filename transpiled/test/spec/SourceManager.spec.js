@@ -20,9 +20,9 @@ var _powerAssert2 = _interopRequireDefault(_powerAssert);
 
 var _sinon = require('sinon');
 
-/*global describe, it, beforeEach*/
-
 var _sinon2 = _interopRequireDefault(_sinon);
+
+/*global describe, it, beforeEach*/
 
 describe('SourceManager', function () {
 

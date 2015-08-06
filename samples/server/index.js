@@ -13,12 +13,8 @@ let app = express(),
 
 app.use(express.static(BASE_DIR));
 
-app.get('/reception', (req, res) => {
-  res.sendFile(BASE_DIR + 'reception.html');
-});
-
-app.get('/entrance', (req, res) => {
-  res.sendFile(BASE_DIR + 'entrance.html');
+app.get('/', (req, res) => {
+  res.sendFile(BASE_DIR + 'index.html');
 });
 
 // Start server
@@ -59,20 +55,14 @@ if (require.main === module) {
           recorder = new MediaRecorder(stream);
           capture = new ImageCapture(stream.getVideoTracks()[0]);
           recorder.ondataavailable = (buf) => {
-            console.log('----- Captured from the reception camera. size=' + buf.length);
-            socket.emit('reception-camera', {data: buf});
+            console.log('----- Captured from the FaceTime camera. size=' + buf.length);
+            socket.emit('node-camera', {data: buf});
           };
         },
         (e) => {
           throw e;
         }
       );
-
-      socket.on('entrance-camera-raw', (data) => {
-        console.log('----- Captured from the entrance camera. size=' + data.length);
-        // TODO: compress
-        socket.broadcast.emit('entrance-camera', {data: data});
-      });
 
       socket.on('chat message', (msg) => {
         console.log('chat message: ' + msg);

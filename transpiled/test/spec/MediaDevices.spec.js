@@ -12,6 +12,8 @@ var _powerAssert2 = _interopRequireDefault(_powerAssert);
 
 var _srcSourceManager = require('../../src/SourceManager');
 
+var _srcSourceManager2 = _interopRequireDefault(_srcSourceManager);
+
 /*global describe, it*/
 
 /*
@@ -25,8 +27,6 @@ partial interface MediaDevices {
     Promise<MediaStream>           getUserMedia (MediaStreamConstraints constraints);
 };
 */
-
-var _srcSourceManager2 = _interopRequireDefault(_srcSourceManager);
 
 describe('MediaDevices', function () {
   it('can collect information about the available media input and output devices', function (done) {

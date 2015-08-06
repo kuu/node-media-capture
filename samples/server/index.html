@@ -3,19 +3,19 @@
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=yes">
     <meta charset="utf-8">
-    <title>Pepper Interphone Demo - Reception</title>
+    <title>node-media-capture demo</title>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
       .camera { float: left; }
-      .chat { float: left; height: 540px}
+      .chat { float: left; height: 810px}
       .main:after { content: ""; display: block; clear: both; }
-      .reception-camera { width: 360px; height: 270px; }
-      .entrance-camera { width: 360px; height: 270px; }
+      .browser-video { width: 360px; height: 270px; }
+      .node-video { width: 360px; height: 270px; }
+      .node-image { width: 360px; height: 270px; }
       form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      img { width: 100%; height: auto; }
-      video { width: auto; height: 100%; }
+      input { border: 0; padding: 10px; width: 80%; margin-right: .5%; }
+      img, video { height: 100%; width: auto; }
       div button { width: 200px; background: rgb(130, 224, 255); border: none; padding: 10px; }
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
       #messages { list-style-type: none; margin: 0; padding: 0; }
@@ -25,14 +25,20 @@
   </head>
   <body>
     <div class="header">
-      <h1>Pepper Interphone Demo<h1>
+      <h1>node-media-capture Demo<h1>
     </div>
     <div class="main">
       <div class="camera">
-        <div class="reception-camera">
+        <div class="browser-video">
+          <h2>Browser getUserMedia()</h2>
+        </div>
+        <div class="node-video">
+          <h2>Node getUserMedia() MediaRecorder API</h2>
           <video></video>
         </div>
-        <div class="entrance-camera"></div>
+        <div class="node-image">
+          <h2>Node getUserMedia() ImageCapture API</h2>
+        </div>
       </div>
       <div class="chat">
         <ul id="messages"></ul>
@@ -42,26 +48,32 @@
     <div class="footer">
       <form action="" disabled>
         <input id="m" autocomplete="off" /><button>Send</button>
+        <button id="snapshot">Take Photo</button>
       </form>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
       var socket = io(),
-          receptionVideo = document.querySelector('.reception-camera video'),
-          entranceDiv = document.querySelector('.entrance-camera'),
+          nodeVideo = document.querySelector('.node-video video'),
+          browserVideo = document.querySelector('.browser-video'),
           button = document.querySelectorAll('button')[0],
           form = document.querySelectorAll('form')[0],
           input = document.querySelectorAll('input')[0],
+          snapshot = document.querySelector('#snapshot'),
           ul = document.querySelectorAll('ul')[0],
+          nodeImage = document.querySelector('.node-image'),
           videoInitialized = false,
-          initSegment, mediaSegmentQueue = [];
+          initSegment, mediaSegmentQueue = [],
+          MAX_QUEUE_LEN = 20;
 
       button.addEventListener('click', function () {
         socket.emit('start');
-        socket.on('reception-camera', function (e) {
-          console.log('reception-camera: buf.size=', e.data.byteLength);
+        socket.on('node-camera', function (e) {
           if (videoInitialized) {
-            mediaSegmentQueue.push(e.data);
+            if (mediaSegmentQueue.length < MAX_QUEUE_LEN) {
+              console.log('node-camera: buf.size=', e.data.byteLength);
+              mediaSegmentQueue.push(e.data);
+            }
           } else {
             initSegment = e.data;
             var ms = new MediaSource();
@@ -74,11 +86,11 @@
                   sb.appendBuffer(mediaSegment);
                 }
               }, false);
-              receptionVideo.play();
+              nodeVideo.play();
               console.log('sourceopen: Appending InitSegment size=', initSegment.byteLength);
               sb.appendBuffer(initSegment);
             }, false);
-            receptionVideo.src = URL.createObjectURL(ms);
+            nodeVideo.src = URL.createObjectURL(ms);
             videoInitialized = true;
           }
         });
@@ -89,20 +101,9 @@
             video.src = URL.createObjectURL(stream);
             video.addEventListener('canplay', function onCanPlay() {
               video.removeEventListener('canplay', onCanPlay, false);
-              entranceDiv.innerHTML = '<h2>Entrance</h2>';
-              entranceDiv.appendChild(video);
+              browserVideo.innerHTML = '<h2>Browser getUserMedia()</h2>';
+              browserVideo.appendChild(video);
               video.play();
-              var canvas = document.createElement('canvas');
-              var w = 320, h = 240;
-              canvas.width = w;
-              canvas.height = h;
-              console.log('canvas size w=' + w + ', h=' + h);
-              var ctx = canvas.getContext('2d');
-              setInterval(function () {
-                ctx.drawImage(video, 0, 0, w, h); 
-                var imageData = ctx.getImageData(0, 0, w, h).data;
-                socket.emit('entrance-camera-raw', imageData.buffer);
-              }, 1000);
             }, false);
           },
           function (e) {
@@ -112,13 +113,24 @@
 
         form.addEventListener('submit', function (e) {
           e.preventDefault();
-          socket.emit('chat message', '[visitor]   ' + input.value);
+          socket.emit('chat message', input.value);
         }, false);
 
         socket.on('chat message', function (msg) {
           var li = document.createElement('li');
           li.textContent = msg;
           ul.appendChild(li);
+        });
+
+        snapshot.addEventListener('click', function (e) {
+          socket.emit('take photo');
+        }, false);
+
+        socket.on('photo', function (msg) {
+          var img = new Image();
+          img.src = URL.createObjectURL(new Blob([msg.data]));
+          nodeImage.innerHTML = '<h2>Node getUserMedia() ImageCapture API</h2>';
+          nodeImage.appendChild(img);
         });
 
         form.disabled = false;

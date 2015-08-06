@@ -16,9 +16,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var _EventTarget2 = require('./EventTarget');
 
-//import SourceManager from './SourceManager';
-
 var _EventTarget3 = _interopRequireDefault(_EventTarget2);
+
+//import SourceManager from './SourceManager';
 
 var privateData = new WeakMap();
 

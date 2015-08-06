@@ -25,34 +25,15 @@ Currently supports the following APIs:
 
 * Currently supports Mac OS X only. (tested on MBP + Yosemite.)
 * Currently supports video tracks only. (audio is being implemented.)
+* `MediaRecorder`'s recording operations (pause/resume) are not supported.
 * `ImageCapture`'s settings are not supported.
 
 ##Install
 
-###Mac OS X
-
-####Install ffmpeg+libx264
-Install Homebrew:
+_Note that only the Mac OS X is supported._
 
 ```
-$ ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-
-Install ffmpeg:
-
-```
-$ brew install ffmpeg --with-libfaac --with-libopenjpeg --with-openssl --with-libvo-aacenc --with-libx264
-```
-
-Make sure that the following libs are installed:
-
-* /usr/local/lib/libavutil.a
-* /usr/local/lib/libswscale.a
-* /usr/local/lib/libx264.a
-
-####Install npm dependencies:
-
-```
+$ git clone git@github.com:kuu/node-media-capture.git
 $ npm install
 ```
 
@@ -64,9 +45,7 @@ Run the sample app:
 $ npm start
 ```
 
-Open with separate browsers:
-* Go to http://localhost:8080/reception
-* Go to http://localhost:8080/entrance
+Go to http://localhost:8080/ with your browser.
 
 ##Usage
 

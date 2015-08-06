@@ -14,9 +14,9 @@ var _srcEventTarget2 = _interopRequireDefault(_srcEventTarget);
 
 var _powerAssert = require('power-assert');
 
-/*global describe, it */
-
 var _powerAssert2 = _interopRequireDefault(_powerAssert);
+
+/*global describe, it */
 
 describe('EventTarget', function () {
   var SubClass = (function (_EventTarget) {

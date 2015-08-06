@@ -18,9 +18,9 @@ var _srcCamera2 = _interopRequireDefault(_srcCamera);
 
 var _powerAssert = require('power-assert');
 
-/*global describe, it, beforeEach*/
-
 var _powerAssert2 = _interopRequireDefault(_powerAssert);
+
+/*global describe, it, beforeEach*/
 
 describe('Camera', function () {
 

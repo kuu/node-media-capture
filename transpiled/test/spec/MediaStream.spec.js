@@ -16,6 +16,8 @@ var _powerAssert2 = _interopRequireDefault(_powerAssert);
 
 var _sinon = require('sinon');
 
+var _sinon2 = _interopRequireDefault(_sinon);
+
 /*global describe, it*/
 
 /*
@@ -38,8 +40,6 @@ interface MediaStream : EventTarget {
                 attribute EventHandler onremovetrack;
 };
 */
-
-var _sinon2 = _interopRequireDefault(_sinon);
 
 describe('MediaStream', function () {
 

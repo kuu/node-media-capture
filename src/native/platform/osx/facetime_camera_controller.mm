@@ -123,7 +123,7 @@ static int frameHeight = 0;
   }
 
   // Init encoder
-  encoder = new H264Encoder(1280, 720, width, height, 30, 5000, true, 0);
+  encoder = new H264Encoder(self, 1280, 720, width, height, 30, 5000, true, 0);
 
   frameCounter = 0;
   isPaused = YES;
@@ -295,7 +295,7 @@ const int kFrameNum = 30;
   //NSData *data = [NSData dataWithBytes:baseAddress length:bufferSize];
 
   // Encode one frame.
-  encoder->pushBuffer((const unsigned char *) pixelBuffer, bufferSize, 0);
+  encoder->pushBuffer((const unsigned char *) pixelBuffer, bufferSize, 0, frameCounter == 0 ? true : false);
 
   CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 
@@ -307,7 +307,7 @@ const int kFrameNum = 30;
 
 - (int) flushEncoder
 {
-  encoder->flushCompressedData(self);
+  encoder->flush();
   return 0;
 }
 

@@ -12,6 +12,8 @@ var _powerAssert2 = _interopRequireDefault(_powerAssert);
 
 var _sinon = require('sinon');
 
+var _sinon2 = _interopRequireDefault(_sinon);
+
 /*global describe, it, beforeEach, afterEach*/
 
 /*
@@ -36,8 +38,6 @@ interface MediaStreamTrack : EventTarget {
                 attribute EventHandler          onoverconstrained;
 };
 */
-
-var _sinon2 = _interopRequireDefault(_sinon);
 
 describe('MediaStreamTrack', function () {
 
