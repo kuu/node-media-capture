@@ -34,6 +34,7 @@ _Note that only the Mac OS X is supported._
 
 ```
 $ git clone git@github.com:kuu/node-media-capture.git
+$ cd node-media-capture
 $ npm install
 ```
 
