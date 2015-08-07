@@ -90,7 +90,7 @@ enum EMetadataKey {
   EMetadataPPS,
   EMetadataSamples,
   EMetadataTimescale,
-  EMetadataPTS,
+  EMetadataBaseTimeOffset,
 };
 
 struct Sample {

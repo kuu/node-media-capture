@@ -19,7 +19,7 @@
   const int32_t *sampleTimeList;
   size_t sampleListLength;
   int32_t sampleTimeScale;
-  int64_t pts;
+  int64_t sampleBaseTimeOffset;
   NSLock *frameDataLock;
   H264Encoder *encoder;
 }
@@ -32,7 +32,8 @@
   sampleSizeList:(const size_t *) sizeList
   sampleTimeList:(const int32_t *) timeList
   sampleListLength:(const size_t) sampleNum
-  sampleTimeScale:(const int32_t) timeScale;
+  sampleTimeScale:(const int32_t) timeScale
+  sampleBaseTimeOffset:(const int64_t) timeOffset;
 @end
 
 @implementation FaceTimeCameraController
@@ -47,6 +48,7 @@ static int frameHeight = 0;
   sampleTimeList:(const int32_t *) timeList
   sampleListLength:(const size_t) sampleNum
   sampleTimeScale:(const int32_t) timeScale
+  sampleBaseTimeOffset:(const int64_t) timeOffset
 {
   [frameDataLock lock];
 
@@ -75,6 +77,7 @@ static int frameHeight = 0;
   sampleTimeList = timeList;
   sampleListLength = sampleNum;
   sampleTimeScale = timeScale;
+  sampleBaseTimeOffset = timeOffset;
   [frameDataLock unlock];
 }
 
@@ -84,11 +87,11 @@ static int frameHeight = 0;
     const uint8_t * const, const size_t,
     const uint8_t * const, const size_t,
     const size_t * const, const int32_t * const,
-    const size_t, const int32_t
+    const size_t, const int32_t, const int64_t
   )) callback
 {
   [frameDataLock lock];
-  callback(frameData, frameDataLength, spsData, spsDataLength, ppsData, ppsDataLength, sampleSizeList, sampleTimeList, sampleListLength, sampleTimeScale);
+  callback(frameData, frameDataLength, spsData, spsDataLength, ppsData, ppsDataLength, sampleSizeList, sampleTimeList, sampleListLength, sampleTimeScale, sampleBaseTimeOffset);
   frameDataLength = 0;
   [frameDataLock unlock];
 }
@@ -152,6 +155,7 @@ static int frameHeight = 0;
   sampleTimeList = 0;
   sampleListLength = 0;
   sampleTimeScale = 0;
+  sampleBaseTimeOffset = 0;
   frameDataLock = [[NSLock alloc] init];
 
   NSLog(@"Succeded: initWithDeviceId");
@@ -286,7 +290,8 @@ bail:
         sampleSizeList:0
         sampleTimeList:0
         sampleListLength: 0
-        sampleTimeScale: 0];
+        sampleTimeScale: 0
+        sampleBaseTimeOffset: 0];
     } else {
       NSLog(@"NULL sampleBuffer: %@", [error localizedDescription]);
     }

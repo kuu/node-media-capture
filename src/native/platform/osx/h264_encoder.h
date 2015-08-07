@@ -23,13 +23,13 @@ public:
   void setBitrate(int bitrate) ;
   int bitrate() const { return m_bitrate; };
   void requestKeyframe();
-  void compressionSessionOutput(const ENALUnitType type, const uint8_t* data, size_t size, uint64_t pts, uint64_t dts);
+  void compressionSessionOutput(const ENALUnitType type, const uint8_t* data, size_t size, uint64_t pts, uint32_t timescale);
   void flush();
         
 private:
   void setupCompressionSession(bool useBaseline);
   void teardownCompressionSession();
-  void addEntry(const uint8_t *data, size_t size, int64_t timeDelta, int32_t timeScale);
+  void addEntry(const uint8_t *data, size_t size, int64_t timeDelta);
   void flushCompressedData();
 
   //std::weak_ptr<IOutput> m_output;
@@ -51,10 +51,11 @@ private:
   const uint8_t **samples;
   size_t sampleByteLength;
   size_t *sampleSizeList;
-  int64_t *sampleTimeList;
+  int32_t *sampleTimeList;
   size_t sampleCount;
   size_t maxSampleCount;
   int32_t m_timescale;
+  int64_t m_baseTimeOffset;
 };
 
 #endif // H264_ENCODER_H

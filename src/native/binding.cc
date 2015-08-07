@@ -355,11 +355,10 @@ NAN_METHOD(InitDevice) {
   callback = new NanCallback(args[2].As<Function>());
 
   const Device* device = deviceManager->getDevice(deviceId);
-  if (!device) {
-    NanReturnUndefined();
-  } else {
+  if (device) {
     device->InitDevice(settings, initDeviceCallback);
   }
+  NanReturnUndefined();
 }
 
 //startDevice(deviceId)
@@ -370,11 +369,10 @@ NAN_METHOD(StartDevice) {
   std::string deviceId(**deviceIdStr);
 
   const Device* device = deviceManager->getDevice(deviceId);
-  if (!device) {
-    NanReturnUndefined();
-  } else {
+  if (device) {
     device->StartDevice();
   }
+  NanReturnUndefined();
 }
 
 static Handle<Object> deviceData;
@@ -385,7 +383,7 @@ Handle<Array> getSamplesArray(const std::vector<const Sample*> samples) {
   for (unsigned i = 0; i < samples.size(); i++) {
     Local<Object> obj = NanNew<Object>();
     obj->Set(NanNew<String>("size"), NanNew<Number>(samples[i]->size));
-    obj->Set(NanNew<String>("compositionTimeOffset"), NanNew<Number>(samples[i]->timestamp));
+    obj->Set(NanNew<String>("compositionTimeOffset"), NanNew<Number>(samples[i]->timeDelta));
     array->Set(i, obj);
   }
   return array;
@@ -409,6 +407,9 @@ Handle<Object> getMetadataObject(const Metadata** metadata, const size_t metaLen
       break;
     case EMetadataTimescale:
       obj->Set(NanNew<String>("timeScale"), NanNew<Number>(value.l));
+      break;
+    case EMetadataBaseTimeOffset:
+      obj->Set(NanNew<String>("pts"), NanNew<Number>(value.ll));
       break;
     }
   }
@@ -482,11 +483,10 @@ NAN_METHOD(TakeSnapshot) {
   std::string deviceId(**deviceIdStr);
 
   const Device* device = deviceManager->getDevice(deviceId);
-  if (!device) {
-    NanReturnUndefined();
-  } else {
+  if (device) {
     device->TakeSnapshot();
   }
+  NanReturnUndefined();
 }
 
 //getZeroInformationContent(deviceId)

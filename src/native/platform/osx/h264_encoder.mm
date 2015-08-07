@@ -54,7 +54,7 @@ void vtCallback(void *outputCallbackRefCon,
   CMBlockBufferGetDataPointer(block, 0, NULL, &size, (char**) &bufferData);
 
   CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-  CMTime dts = CMSampleBufferGetDecodeTimeStamp(sampleBuffer);
+  //CMTime dts = CMSampleBufferGetDecodeTimeStamp(sampleBuffer);
 
   if (isKeyframe) {
     // Send the SPS and PPS.
@@ -72,8 +72,8 @@ void vtCallback(void *outputCallbackRefCon,
     memcpy(sps_buf, sps, spsSize);
     memcpy(pps_buf, pps, ppsSize);
 
-    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSPS, sps_buf, spsSize, pts.value, dts.value);
-    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitPPS, pps_buf, ppsSize, pts.value, dts.value);
+    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSPS, sps_buf, spsSize, pts.value, pts.timescale);
+    ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitPPS, pps_buf, ppsSize, pts.value, pts.timescale);
 
     size_t skipLen = skipDisposable(bufferData, size);
     size -= skipLen;
@@ -83,7 +83,7 @@ void vtCallback(void *outputCallbackRefCon,
   uint8_t *buf = (uint8_t *)malloc(sizeof(uint8_t) * size);
   memcpy(buf, bufferData, size);
 
-  ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSlice, buf, size, pts.value, dts.value);
+  ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSlice, buf, size, pts.value, pts.timescale);
 }
 
 H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline, int ctsOffset)
@@ -94,8 +94,8 @@ H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int out
   samples((const uint8_t **)malloc(sizeof(uint8_t*) * DEFAULT_SAMPLE_COUNT)),
   sampleByteLength(0),
   sampleSizeList((size_t *)malloc(sizeof(size_t) * DEFAULT_SAMPLE_COUNT)),
-  sampleTimeList((int64_t *)malloc(sizeof(int64_t) * DEFAULT_SAMPLE_COUNT)),
-  sampleCount(0), maxSampleCount(DEFAULT_SAMPLE_COUNT), m_timescale(1000)
+  sampleTimeList((int32_t *)malloc(sizeof(int32_t) * DEFAULT_SAMPLE_COUNT)),
+  sampleCount(0), maxSampleCount(DEFAULT_SAMPLE_COUNT), m_timescale(1000), m_baseTimeOffset(0)
 {
   setupCompressionSession(useBaseline);
 }
@@ -207,7 +207,7 @@ static void printNAL(const uint8_t *data, const size_t size) {
 }
 #endif
 
-void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *data, size_t size, uint64_t pts, uint64_t dts)
+void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *data, size_t size, uint64_t pts, uint32_t timescale)
 {
   m_encodeMutex.lock();
 
@@ -220,6 +220,7 @@ void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *dat
     //printf("SPS: type=%d\n", (data[0] & 0x1F));
     spsData = data;
     spsDataLen = size;
+    m_timescale = timescale;
     break;
   case ENALUnitPPS:
     //printf("PPS: type=%d\n", (data[0] & 0x1F));
@@ -227,27 +228,29 @@ void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *dat
     ppsDataLen = size;
     break;
   case ENALUnitSlice:
-    addEntry(data, size, pts, m_timescale);
+    addEntry(data, size, pts);
     break;
   }
 
   m_encodeMutex.unlock();
 }
 
-void H264Encoder::addEntry(const uint8_t *data, size_t size, int64_t timeDelta, int32_t timeScale)
+void H264Encoder::addEntry(const uint8_t *data, size_t size, int64_t timeDelta)
 {
   samples[sampleCount] = data;
   //printf("sample[%lu]: ", sampleCount);
   //printNAL(data, size);
   sampleSizeList[sampleCount] = size;
-  sampleTimeList[sampleCount] = timeDelta;
-  m_timescale = timeScale;
   sampleByteLength += size;
+  if (sampleCount == 0) {
+    m_baseTimeOffset = timeDelta;
+  }
+  sampleTimeList[sampleCount] = ((timeDelta - m_baseTimeOffset) & 0xFFFFFFFF);
   if (++sampleCount >= maxSampleCount) {
     maxSampleCount += DEFAULT_SAMPLE_COUNT;
     samples = (const uint8_t **)realloc((void *)samples, sizeof(uint8_t*) * maxSampleCount);
     sampleSizeList = (size_t *)realloc((void *)sampleSizeList, sizeof(size_t) * maxSampleCount);
-    sampleTimeList = (int64_t *)realloc((void *)sampleTimeList, sizeof(int64_t) * maxSampleCount);
+    sampleTimeList = (int32_t *)realloc((void *)sampleTimeList, sizeof(int32_t) * maxSampleCount);
   }
 }
 
@@ -282,6 +285,7 @@ void H264Encoder::flushCompressedData()
     sampleTimeList: sampleTimeList
     sampleListLength: sampleCount
     sampleTimeScale: m_timescale
+    sampleBaseTimeOffset: m_baseTimeOffset
   ];
 
   spsData = nullptr;
@@ -296,7 +300,7 @@ void H264Encoder::flushCompressedData()
   free((void *) samples);
   samples = (const uint8_t **)malloc(sizeof(uint8_t*) * maxSampleCount);
   sampleSizeList = (size_t *)malloc(sizeof(size_t) * maxSampleCount);
-  sampleTimeList = (int64_t *)malloc(sizeof(int64_t) * maxSampleCount);
+  sampleTimeList = (int32_t *)malloc(sizeof(int32_t) * maxSampleCount);
 }
 
 void H264Encoder::setupCompressionSession(bool useBaseline)

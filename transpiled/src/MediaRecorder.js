@@ -38,14 +38,15 @@ var Muxer = (function () {
 
     this.buffer = buffer;
     this.sequenceNumber = 1;
-    this.baseOffset = 0;
+    this.byteOffset = 0;
+    this.timeOffset = 0;
     this.moofSize = 0;
   }
 
   _createClass(Muxer, [{
     key: 'getTrackBox',
     value: function getTrackBox(track, trackId) {
-      var metadata = track.frames[0].metadata,
+      var metadata = track.chunks[0].metadata,
           tkhd = track.type === 'video' ? IsoBmff.createElement('tkhd', { trackId: trackId, duration: 0, width: track.settings.width, height: track.settings.height }) : IsoBmff.createElement('tkhd', { trackId: trackId, duration: 0, volume: track.settings.volume }),
           hdlr = track.type === 'video' ? IsoBmff.createElement('hdlr', { handlerType: 'video', name: 'VideoHandler' }) : IsoBmff.createElement('hdlr', { handlerType: 'audio', name: 'AudioHandler' }),
           xmhd = track.type === 'video' ? IsoBmff.createElement('vmhd', null) : IsoBmff.createElement('smhd', null);
@@ -84,14 +85,15 @@ var Muxer = (function () {
     }
   }, {
     key: 'getTrackFragmentBoxList',
-    value: function getTrackFragmentBoxList(base, offset) {
+    value: function getTrackFragmentBoxList(base, byteOffset) {
       var buffer = this.buffer;
 
       return buffer.tracks.map(function (track, i) {
-        var truns = track.frames.map(function (frame, j) {
+        var firstChunk = track.chunks[0];
+        var truns = track.chunks.map(function (chunk, j) {
           var trun = IsoBmff.createElement('trun', {
-            dataOffset: j === 0 ? offset : void 0, // the first trun needs to have the data-offset
-            samples: frame.metadata.samples,
+            dataOffset: j === 0 ? byteOffset : void 0, // the first trun needs to have the data-offset
+            samples: chunk.metadata.samples,
             firstSampleFlags: {
               sampleDependsOn: 'unknown',
               sampleIsDependedOn: 'unknown',
@@ -101,13 +103,13 @@ var Muxer = (function () {
               sampleDegradationPriority: 512
             }
           });
-          offset += frame.data.length;
+          byteOffset += chunk.data.length;
           return trun;
         });
         return IsoBmff.createElement.apply(IsoBmff, ['traf', null, IsoBmff.createElement('tfhd', {
           trackId: i + 1,
           baseDataOffset: base,
-          defaultSampleDuration: 100,
+          defaultSampleDuration: firstChunk.metadata.timeScale / track.settings.frameRate,
           defaultSampleSize: truns[0].props.samples[0].size,
           defaultSampleFlags: {
             sampleDependsOn: 'unknown',
@@ -117,7 +119,9 @@ var Muxer = (function () {
             sampleIsDifferenceSample: false,
             sampleDegradationPriority: 257
           }
-        }), IsoBmff.createElement('tfdt', { baseMediaDecodeTime: 0, version: 1 })].concat(_toConsumableArray(truns)));
+        }),
+        //IsoBmff.createElement('tfdt', {baseMediaDecodeTime: firstChunk.metadata.pts, version: 1}),
+        IsoBmff.createElement('tfdt', { baseMediaDecodeTime: 0, version: 1 })].concat(_toConsumableArray(truns)));
       });
     }
   }, {
@@ -128,8 +132,8 @@ var Muxer = (function () {
           totalBuf = undefined;
 
       buffer.tracks.forEach(function (track) {
-        track.frames.forEach(function (frame) {
-          buffList.push(frame.data);
+        track.chunks.forEach(function (chunk) {
+          buffList.push(chunk.data);
         });
       });
 
@@ -167,7 +171,7 @@ var Muxer = (function () {
   }, {
     key: 'getMediaSegment',
     value: function getMediaSegment() {
-      var trafs = this.getTrackFragmentBoxList(this.baseOffset, this.getMoofSize() + MDAT_HEADER_SIZE);
+      var trafs = this.getTrackFragmentBoxList(this.byteOffset, this.getMoofSize() + MDAT_HEADER_SIZE);
 
       return IsoBmff.createElement('file', null, IsoBmff.createElement.apply(IsoBmff, ['moof', null, IsoBmff.createElement('mfhd', { sequenceNumber: this.sequenceNumber })].concat(_toConsumableArray(trafs))), this.getMediaDataBox());
     }
@@ -175,14 +179,14 @@ var Muxer = (function () {
     key: 'renderInitializationSegment',
     value: function renderInitializationSegment() {
       var buf = _kontainerJs2['default'].renderToBuffer(this.getInitializationSegment());
-      this.baseOffset += buf.length;
+      this.byteOffset += buf.length;
       return buf;
     }
   }, {
     key: 'renderMediaSegment',
     value: function renderMediaSegment() {
       var buf = _kontainerJs2['default'].renderToBuffer(this.getMediaSegment());
-      this.baseOffset += buf.length;
+      this.byteOffset += buf.length;
       this.sequenceNumber++;
       return buf;
     }
@@ -220,25 +224,25 @@ var MuxBuffer = (function () {
   _createClass(MuxBuffer, [{
     key: 'addTrack',
     value: function addTrack(type, settings) {
-      return this.tracks.push({ type: type, settings: settings, frames: [] }) - 1;
+      return this.tracks.push({ type: type, settings: settings, chunks: [] }) - 1;
     }
   }, {
     key: 'pushData',
     value: function pushData(trackId, data) {
-      this.tracks[trackId].frames.push(data);
+      this.tracks[trackId].chunks.push(data);
     }
   }, {
     key: 'canFlush',
     value: function canFlush() {
       return this.tracks.every(function (track) {
-        return track.frames.length > 0;
+        return track.chunks.length > 0;
       });
     }
   }, {
     key: 'clear',
     value: function clear() {
       this.tracks.forEach(function (track) {
-        track.frames.length = 0;
+        track.chunks.length = 0;
       });
     }
   }, {

@@ -17,7 +17,7 @@ class Muxer {
   }
 
   getTrackBox(track, trackId) {
-    let metadata = track.frames[0].metadata,
+    let metadata = track.chunks[0].metadata,
         tkhd = track.type === 'video' ?
           IsoBmff.createElement('tkhd', {trackId, duration: 0, width: track.settings.width, height: track.settings.height}) :
           IsoBmff.createElement('tkhd', {trackId, duration: 0, volume: track.settings.volume}),
@@ -90,11 +90,11 @@ class Muxer {
     let buffer = this.buffer;
 
     return buffer.tracks.map((track, i) => {
-      let firstFrame = track.frames[0];
-      let truns = track.frames.map((frame, j) => {
+      let firstChunk = track.chunks[0];
+      let truns = track.chunks.map((chunk, j) => {
         let trun = IsoBmff.createElement('trun', {
           dataOffset: j === 0 ? byteOffset : void 0, // the first trun needs to have the data-offset
-          samples: frame.metadata.samples,
+          samples: chunk.metadata.samples,
           firstSampleFlags: {
               sampleDependsOn: 'unknown',
               sampleIsDependedOn: 'unknown',
@@ -104,7 +104,7 @@ class Muxer {
               sampleDegradationPriority: 512
             }
           });
-        byteOffset += frame.data.length;
+        byteOffset += chunk.data.length;
         return trun;
       });
       return IsoBmff.createElement('traf', null,
@@ -113,7 +113,7 @@ class Muxer {
           {
             trackId: i + 1,
             baseDataOffset: base,
-            defaultSampleDuration: firstFrame.metadata.timeScale / firstFrame.settings.frameRate,
+            defaultSampleDuration: firstChunk.metadata.timeScale / track.settings.frameRate,
             defaultSampleSize: truns[0].props.samples[0].size,
             defaultSampleFlags: {
               sampleDependsOn: 'unknown',
@@ -125,7 +125,7 @@ class Muxer {
             }
           }
         ),
-        IsoBmff.createElement('tfdt', {baseMediaDecodeTime: firstFrame.metadata.pts, version: 1}),
+        IsoBmff.createElement('tfdt', {baseMediaDecodeTime: firstChunk.metadata.pts, version: 1}),
         ...truns
       );
     });
@@ -136,8 +136,8 @@ class Muxer {
         buffList = [], totalBuf;
 
     buffer.tracks.forEach((track) => {
-      track.frames.forEach((frame) => {
-        buffList.push(frame.data);
+      track.chunks.forEach((chunk) => {
+        buffList.push(chunk.data);
       });
     });
 
@@ -221,20 +221,20 @@ class MuxBuffer {
   }
 
   addTrack(type, settings) {
-    return this.tracks.push({type, settings, frames: []}) - 1;
+    return this.tracks.push({type, settings, chunks: []}) - 1;
   }
 
   pushData(trackId, data) {
-    this.tracks[trackId].frames.push(data);
+    this.tracks[trackId].chunks.push(data);
   }
 
   canFlush() {
-    return this.tracks.every((track) => (track.frames.length > 0));
+    return this.tracks.every((track) => (track.chunks.length > 0));
   }
 
   clear() {
     this.tracks.forEach((track) => {
-      track.frames.length = 0;
+      track.chunks.length = 0;
     });
   }
 

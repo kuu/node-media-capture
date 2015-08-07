@@ -63,7 +63,7 @@ const std::vector<const Capability*>& FaceTimeCamera::getCapabilities() {
           1.0, // min
           30.0, // max
 	  getNullVector(), // values
-          15.0, // defaultValue
+          30.0, // defaultValue
         }
       }
     },
@@ -181,9 +181,9 @@ void FaceTimeCamera::FetchDevice(void (*callback)(const void * const, size_t, co
         new Metadata{EMetadataPPS, ppsLength, {.p = pps}},
         new Metadata{EMetadataSamples, sampleNum, {.arr = std::vector<const Sample*>(samples, samples + sampleNum)}},
         new Metadata{EMetadataTimescale, 1, {.l = timescale}},
-        new Metadata{EMetadataPTS, 1, {.ll = timestamp}},
+        new Metadata{EMetadataBaseTimeOffset, 1, {.ll = timestamp}},
       };
-      callback(data, length, metadata, 3);
+      callback(data, length, metadata, 5);
     }
   ];
 }
