@@ -15,8 +15,11 @@
   size_t spsDataLength;
   const uint8_t *ppsData;
   size_t ppsDataLength;
-  const size_t *sampleList;
+  const size_t *sampleSizeList;
+  const int32_t *sampleTimeList;
   size_t sampleListLength;
+  int32_t sampleTimeScale;
+  int64_t pts;
   NSLock *frameDataLock;
   H264Encoder *encoder;
 }
@@ -26,7 +29,10 @@
 - (void) setFrameData:(const uint8_t *) data length:(size_t) length
   spsData:(const uint8_t *) sps spsDataLength:(size_t) spsLength
   ppsData:(const uint8_t *) pps ppsDataLength:(size_t) ppsLength
-  sampleList:(const size_t *) samples sampleListLength:(size_t) sampleNum;
+  sampleSizeList:(const size_t *) sizeList
+  sampleTimeList:(const int32_t *) timeList
+  sampleListLength:(const size_t) sampleNum
+  sampleTimeScale:(const int32_t) timeScale;
 @end
 
 @implementation FaceTimeCameraController
@@ -37,7 +43,10 @@ static int frameHeight = 0;
 - (void) setFrameData:(const uint8_t *) data length:(size_t) length
   spsData:(const uint8_t *) sps spsDataLength:(size_t) spsLength
   ppsData:(const uint8_t *) pps ppsDataLength:(size_t) ppsLength
-  sampleList:(const size_t *) samples sampleListLength:(size_t) sampleNum
+  sampleSizeList:(const size_t *) sizeList
+  sampleTimeList:(const int32_t *) timeList
+  sampleListLength:(const size_t) sampleNum
+  sampleTimeScale:(const int32_t) timeScale
 {
   [frameDataLock lock];
 
@@ -50,8 +59,11 @@ static int frameHeight = 0;
   if (ppsData) {
     free((void*) ppsData);
   }
-  if (sampleList) {
-    free((void*) sampleList);
+  if (sampleSizeList) {
+    free((void*) sampleSizeList);
+  }
+  if (sampleTimeList) {
+    free((void*) sampleTimeList);
   }
   frameData = data;
   frameDataLength = length;
@@ -59,8 +71,10 @@ static int frameHeight = 0;
   spsDataLength = spsLength;
   ppsData = pps;
   ppsDataLength = ppsLength;
-  sampleList = samples;
+  sampleSizeList = sizeList;
+  sampleTimeList = timeList;
   sampleListLength = sampleNum;
+  sampleTimeScale = timeScale;
   [frameDataLock unlock];
 }
 
@@ -69,11 +83,12 @@ static int frameHeight = 0;
     const uint8_t * const, size_t,
     const uint8_t * const, const size_t,
     const uint8_t * const, const size_t,
-    const size_t * const, const size_t
+    const size_t * const, const int32_t * const,
+    const size_t, const int32_t
   )) callback
 {
   [frameDataLock lock];
-  callback(frameData, frameDataLength, spsData, spsDataLength, ppsData, ppsDataLength, sampleList, sampleListLength);
+  callback(frameData, frameDataLength, spsData, spsDataLength, ppsData, ppsDataLength, sampleSizeList, sampleTimeList, sampleListLength, sampleTimeScale);
   frameDataLength = 0;
   [frameDataLock unlock];
 }
@@ -123,7 +138,7 @@ static int frameHeight = 0;
   }
 
   // Init encoder
-  encoder = new H264Encoder(self, 1280, 720, width, height, 30, 5000, true, 0);
+  encoder = new H264Encoder(self, 1280, 720, width, height, 30, 40000, true, 0);
 
   frameCounter = 0;
   isPaused = YES;
@@ -133,8 +148,10 @@ static int frameHeight = 0;
   spsDataLength = 0;
   ppsData = 0;
   ppsDataLength = 0;
-  sampleList = 0;
+  sampleSizeList = 0;
+  sampleTimeList = 0;
   sampleListLength = 0;
+  sampleTimeScale = 0;
   frameDataLock = [[NSLock alloc] init];
 
   NSLog(@"Succeded: initWithDeviceId");
@@ -266,7 +283,10 @@ bail:
       [self setFrameData:dst length:length
         spsData:0 spsDataLength:0
         ppsData:0 ppsDataLength:0
-        sampleList:0 sampleListLength: 0];
+        sampleSizeList:0
+        sampleTimeList:0
+        sampleListLength: 0
+        sampleTimeScale: 0];
     } else {
       NSLog(@"NULL sampleBuffer: %@", [error localizedDescription]);
     }
@@ -294,8 +314,10 @@ const int kFrameNum = 30;
   //int height = CVPixelBufferGetHeight(pixelBuffer);
   //NSData *data = [NSData dataWithBytes:baseAddress length:bufferSize];
 
+  CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+
   // Encode one frame.
-  encoder->pushBuffer((const unsigned char *) pixelBuffer, bufferSize, 0, frameCounter == 0 ? true : false);
+  encoder->pushBuffer((const unsigned char *) pixelBuffer, bufferSize, pts.value, pts.timescale, frameCounter == 0 ? true : false);
 
   CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 

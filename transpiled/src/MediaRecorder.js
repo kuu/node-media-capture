@@ -50,7 +50,7 @@ var Muxer = (function () {
           hdlr = track.type === 'video' ? IsoBmff.createElement('hdlr', { handlerType: 'video', name: 'VideoHandler' }) : IsoBmff.createElement('hdlr', { handlerType: 'audio', name: 'AudioHandler' }),
           xmhd = track.type === 'video' ? IsoBmff.createElement('vmhd', null) : IsoBmff.createElement('smhd', null);
 
-      return IsoBmff.createElement('trak', null, tkhd, IsoBmff.createElement('mdia', null, IsoBmff.createElement('mdhd', { timeScale: 3000, duration: 0 }), hdlr, IsoBmff.createElement('minf', null, xmhd, IsoBmff.createElement('dinf', null, IsoBmff.createElement('dref', { entryCount: 1 }, IsoBmff.createElement('url ', { location: '' }))), IsoBmff.createElement('stbl', null, IsoBmff.createElement('stsd', { entryCount: 1 }, track.type === 'video' ? IsoBmff.createElement('avc1', { dataReferenceIndex: trackId, width: track.settings.width, height: track.settings.height, frameCount: 1 }, IsoBmff.createElement('avcC', {
+      return IsoBmff.createElement('trak', null, tkhd, IsoBmff.createElement('mdia', null, IsoBmff.createElement('mdhd', { timeScale: metadata.timeScale, duration: 0 }), hdlr, IsoBmff.createElement('minf', null, xmhd, IsoBmff.createElement('dinf', null, IsoBmff.createElement('dref', { entryCount: 1 }, IsoBmff.createElement('url ', { location: '' }))), IsoBmff.createElement('stbl', null, IsoBmff.createElement('stsd', { entryCount: 1 }, track.type === 'video' ? IsoBmff.createElement('avc1', { dataReferenceIndex: trackId, width: track.settings.width, height: track.settings.height, frameCount: 1 }, IsoBmff.createElement('avcC', {
         avcProfileIndication: 'baseline',
         profileCompatibility: {
           constraintSet0Flag: false,

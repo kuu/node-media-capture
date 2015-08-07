@@ -89,10 +89,13 @@ enum EMetadataKey {
   EMetadataSPS,
   EMetadataPPS,
   EMetadataSamples,
+  EMetadataTimescale,
+  EMetadataPTS,
 };
 
 struct Sample {
   const size_t size;
+  const int32_t timeDelta;
 };
 
 struct Metadata {
@@ -100,6 +103,7 @@ struct Metadata {
   const size_t size;
   union MetadataValue {
     const long l;
+    const long long ll;
     const bool b;
     const char *s;
     const uint8_t *p;

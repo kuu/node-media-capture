@@ -11,7 +11,8 @@ class Muxer {
   constructor(buffer) {
     this.buffer = buffer;
     this.sequenceNumber = 1;
-    this.baseOffset = 0;
+    this.byteOffset = 0;
+    this.timeOffset = 0;
     this.moofSize = 0;
   }
 
@@ -30,7 +31,7 @@ class Muxer {
     return IsoBmff.createElement('trak', null,
       tkhd,
       IsoBmff.createElement('mdia', null,
-        IsoBmff.createElement('mdhd', {timeScale: 3000, duration: 0}),
+        IsoBmff.createElement('mdhd', {timeScale: metadata.timeScale, duration: 0}),
         hdlr,
         IsoBmff.createElement('minf', null,
           xmhd,
@@ -85,13 +86,14 @@ class Muxer {
     });
   }
 
-  getTrackFragmentBoxList(base, offset) {
+  getTrackFragmentBoxList(base, byteOffset) {
     let buffer = this.buffer;
 
     return buffer.tracks.map((track, i) => {
+      let firstFrame = track.frames[0];
       let truns = track.frames.map((frame, j) => {
         let trun = IsoBmff.createElement('trun', {
-          dataOffset: j === 0 ? offset : void 0, // the first trun needs to have the data-offset
+          dataOffset: j === 0 ? byteOffset : void 0, // the first trun needs to have the data-offset
           samples: frame.metadata.samples,
           firstSampleFlags: {
               sampleDependsOn: 'unknown',
@@ -102,7 +104,7 @@ class Muxer {
               sampleDegradationPriority: 512
             }
           });
-        offset += frame.data.length;
+        byteOffset += frame.data.length;
         return trun;
       });
       return IsoBmff.createElement('traf', null,
@@ -111,7 +113,7 @@ class Muxer {
           {
             trackId: i + 1,
             baseDataOffset: base,
-            defaultSampleDuration: 100,
+            defaultSampleDuration: firstFrame.metadata.timeScale / firstFrame.settings.frameRate,
             defaultSampleSize: truns[0].props.samples[0].size,
             defaultSampleFlags: {
               sampleDependsOn: 'unknown',
@@ -123,7 +125,7 @@ class Muxer {
             }
           }
         ),
-        IsoBmff.createElement('tfdt', {baseMediaDecodeTime: 0, version: 1}),
+        IsoBmff.createElement('tfdt', {baseMediaDecodeTime: firstFrame.metadata.pts, version: 1}),
         ...truns
       );
     });
@@ -176,7 +178,7 @@ class Muxer {
   }
 
   getMediaSegment() {
-    let trafs = this.getTrackFragmentBoxList(this.baseOffset, this.getMoofSize() + MDAT_HEADER_SIZE);
+    let trafs = this.getTrackFragmentBoxList(this.byteOffset, this.getMoofSize() + MDAT_HEADER_SIZE);
 
     return IsoBmff.createElement('file', null,
       IsoBmff.createElement('moof', null,
@@ -189,13 +191,13 @@ class Muxer {
 
   renderInitializationSegment() {
     let buf = Kontainer.renderToBuffer(this.getInitializationSegment());
-    this.baseOffset += buf.length;
+    this.byteOffset += buf.length;
     return buf;
   }
 
   renderMediaSegment() {
     let buf = Kontainer.renderToBuffer(this.getMediaSegment());
-    this.baseOffset += buf.length;
+    this.byteOffset += buf.length;
     this.sequenceNumber++;
     return buf;
   }

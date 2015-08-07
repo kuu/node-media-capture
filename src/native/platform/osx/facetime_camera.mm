@@ -168,17 +168,20 @@ void FaceTimeCamera::FetchDevice(void (*callback)(const void * const, size_t, co
     ^(const uint8_t * const data, size_t length,
       const uint8_t * const sps, const size_t spsLength,
       const uint8_t * const pps, const size_t ppsLength,
-      const size_t * const samples, const size_t sampleNum) {
+      const size_t * const sampleSizeList, const int32_t * const sampleTimeList,
+      const size_t sampleNum, const int32_t timescale, const int64_t timestamp) {
 
-      const Sample *sampleArray[sampleNum];
+      const Sample *samples[sampleNum];
       for (size_t i = 0; i < sampleNum; i++) {
-        sampleArray[i] = new Sample{samples[i]};
+        samples[i] = new Sample{sampleSizeList[i], sampleTimeList[i]};
       }
 
       const Metadata* metadata[] = {
         new Metadata{EMetadataSPS, spsLength, {.p = sps}},
         new Metadata{EMetadataPPS, ppsLength, {.p = pps}},
-        new Metadata{EMetadataSamples, sampleNum, {.arr = std::vector<const Sample*>(sampleArray, sampleArray + sampleNum)}},
+        new Metadata{EMetadataSamples, sampleNum, {.arr = std::vector<const Sample*>(samples, samples + sampleNum)}},
+        new Metadata{EMetadataTimescale, 1, {.l = timescale}},
+        new Metadata{EMetadataPTS, 1, {.ll = timestamp}},
       };
       callback(data, length, metadata, 3);
     }

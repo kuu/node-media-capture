@@ -37,13 +37,9 @@ void vtCallback(void *outputCallbackRefCon,
                 VTEncodeInfoFlags infoFlags,
                 CMSampleBufferRef sampleBuffer )
 {
-  CMBlockBufferRef block = CMSampleBufferGetDataBuffer(sampleBuffer);
-  CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, false);
-  CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-  CMTime dts = CMSampleBufferGetDecodeTimeStamp(sampleBuffer);
-
-  //printf("status: %d\n", (int) status);
   bool isKeyframe = false;
+  CFArrayRef attachments = CMSampleBufferGetSampleAttachmentsArray(sampleBuffer, false);
+
   if (attachments != NULL) {
     CFDictionaryRef attachment;
     CFBooleanRef dependsOnOthers;
@@ -52,9 +48,13 @@ void vtCallback(void *outputCallbackRefCon,
     isKeyframe = (dependsOnOthers == kCFBooleanFalse);
   }
 
+  CMBlockBufferRef block = CMSampleBufferGetDataBuffer(sampleBuffer);
   uint8_t *bufferData;
   size_t size;
   CMBlockBufferGetDataPointer(block, 0, NULL, &size, (char**) &bufferData);
+
+  CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+  CMTime dts = CMSampleBufferGetDecodeTimeStamp(sampleBuffer);
 
   if (isKeyframe) {
     // Send the SPS and PPS.
@@ -94,7 +94,8 @@ H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int out
   samples((const uint8_t **)malloc(sizeof(uint8_t*) * DEFAULT_SAMPLE_COUNT)),
   sampleByteLength(0),
   sampleSizeList((size_t *)malloc(sizeof(size_t) * DEFAULT_SAMPLE_COUNT)),
-  sampleCount(0), maxSampleCount(DEFAULT_SAMPLE_COUNT)
+  sampleTimeList((int64_t *)malloc(sizeof(int64_t) * DEFAULT_SAMPLE_COUNT)),
+  sampleCount(0), maxSampleCount(DEFAULT_SAMPLE_COUNT), m_timescale(1000)
 {
   setupCompressionSession(useBaseline);
 }
@@ -111,13 +112,15 @@ CVPixelBufferPoolRef H264Encoder::pixelBufferPool() {
   return nullptr;
 }
 
-void H264Encoder::pushBuffer(const uint8_t *const data, size_t size, int timestampDelta, bool forceKeyFrame)
+void H264Encoder::pushBuffer(const uint8_t *const data, size_t size, const int64_t timestamp, const int32_t timescale, bool forceKeyFrame)
 {
   if (m_compressionSession) {
     m_encodeMutex.lock();
     VTCompressionSessionRef session = (VTCompressionSessionRef)m_compressionSession;
 
-    CMTime pts = CMTimeMake(timestampDelta + m_ctsOffset, 1000.); // timestamp is in ms.
+    //printf("\tdelta: %d\n", timestamp);
+
+    CMTime pts = CMTimeMake(timestamp + m_ctsOffset, timescale); // timestamp is in ms.
     CMTime dur = CMTimeMake(1, m_fps);
     VTEncodeInfoFlags flags;
 
@@ -224,24 +227,27 @@ void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *dat
     ppsDataLen = size;
     break;
   case ENALUnitSlice:
-    addEntry(data, size);
+    addEntry(data, size, pts, m_timescale);
     break;
   }
 
   m_encodeMutex.unlock();
 }
 
-void H264Encoder::addEntry(const uint8_t *data, size_t size)
+void H264Encoder::addEntry(const uint8_t *data, size_t size, int64_t timeDelta, int32_t timeScale)
 {
   samples[sampleCount] = data;
   //printf("sample[%lu]: ", sampleCount);
   //printNAL(data, size);
   sampleSizeList[sampleCount] = size;
+  sampleTimeList[sampleCount] = timeDelta;
+  m_timescale = timeScale;
   sampleByteLength += size;
   if (++sampleCount >= maxSampleCount) {
     maxSampleCount += DEFAULT_SAMPLE_COUNT;
     samples = (const uint8_t **)realloc((void *)samples, sizeof(uint8_t*) * maxSampleCount);
     sampleSizeList = (size_t *)realloc((void *)sampleSizeList, sizeof(size_t) * maxSampleCount);
+    sampleTimeList = (int64_t *)realloc((void *)sampleTimeList, sizeof(int64_t) * maxSampleCount);
   }
 }
 
@@ -272,8 +278,10 @@ void H264Encoder::flushCompressedData()
     spsDataLength: spsDataLen
     ppsData: ppsData
     ppsDataLength: ppsDataLen
-    sampleList: sampleSizeList
+    sampleSizeList: sampleSizeList
+    sampleTimeList: sampleTimeList
     sampleListLength: sampleCount
+    sampleTimeScale: m_timescale
   ];
 
   spsData = nullptr;
@@ -288,6 +296,7 @@ void H264Encoder::flushCompressedData()
   free((void *) samples);
   samples = (const uint8_t **)malloc(sizeof(uint8_t*) * maxSampleCount);
   sampleSizeList = (size_t *)malloc(sizeof(size_t) * maxSampleCount);
+  sampleTimeList = (int64_t *)malloc(sizeof(int64_t) * maxSampleCount);
 }
 
 void H264Encoder::setupCompressionSession(bool useBaseline)
@@ -348,7 +357,7 @@ void H264Encoder::setupCompressionSession(bool useBaseline)
   if (err == noErr) {
     m_compressionSession = session;
 
-    const int32_t v = m_fps * 2; // 2-second kfi
+    const int32_t v = m_fps * 1; // 1-second kfi
 
     CFNumberRef ref = CFNumberCreate(NULL, kCFNumberSInt32Type, &v);
     err = VTSessionSetProperty(session, kVTCompressionPropertyKey_MaxKeyFrameInterval, ref);
@@ -389,7 +398,6 @@ void H264Encoder::setupCompressionSession(bool useBaseline)
   }
 
   if (err == noErr) {
-    NSLog(@"!!!Finished");
     VTCompressionSessionPrepareToEncodeFrames(session);
   }
 

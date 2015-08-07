@@ -385,6 +385,7 @@ Handle<Array> getSamplesArray(const std::vector<const Sample*> samples) {
   for (unsigned i = 0; i < samples.size(); i++) {
     Local<Object> obj = NanNew<Object>();
     obj->Set(NanNew<String>("size"), NanNew<Number>(samples[i]->size));
+    obj->Set(NanNew<String>("compositionTimeOffset"), NanNew<Number>(samples[i]->timestamp));
     array->Set(i, obj);
   }
   return array;
@@ -405,6 +406,9 @@ Handle<Object> getMetadataObject(const Metadata** metadata, const size_t metaLen
       break;
     case EMetadataSamples:
       obj->Set(NanNew<String>("samples"), getSamplesArray(value.arr));
+      break;
+    case EMetadataTimescale:
+      obj->Set(NanNew<String>("timeScale"), NanNew<Number>(value.l));
       break;
     }
   }

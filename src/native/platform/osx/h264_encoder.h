@@ -17,7 +17,7 @@ public:
   CVPixelBufferPoolRef pixelBufferPool();
 
   // Input is expecting a CVPixelBufferRef
-  void pushBuffer(const uint8_t* const data, size_t size, int timestampDelta, bool forceKeyFrame);
+  void pushBuffer(const uint8_t* const data, size_t size, int64_t timestamp, int32_t timescale, bool forceKeyFrame);
   //void setOutput(std::shared_ptr<IOutput> output) { m_output = output; };
 
   void setBitrate(int bitrate) ;
@@ -29,7 +29,7 @@ public:
 private:
   void setupCompressionSession(bool useBaseline);
   void teardownCompressionSession();
-  void addEntry(const uint8_t *data, size_t size);
+  void addEntry(const uint8_t *data, size_t size, int64_t timeDelta, int32_t timeScale);
   void flushCompressedData();
 
   //std::weak_ptr<IOutput> m_output;
@@ -51,8 +51,10 @@ private:
   const uint8_t **samples;
   size_t sampleByteLength;
   size_t *sampleSizeList;
+  int64_t *sampleTimeList;
   size_t sampleCount;
   size_t maxSampleCount;
+  int32_t m_timescale;
 };
 
 #endif // H264_ENCODER_H
