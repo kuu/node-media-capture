@@ -42,16 +42,16 @@ static int frameHeight = 0;
   [frameDataLock lock];
 
   if (frameData) {
-    //free((void*) frameData);
+    free((void*) frameData);
   }
   if (spsData) {
-    //free((void*) spsData);
+    free((void*) spsData);
   }
   if (ppsData) {
-    //free((void*) ppsData);
+    free((void*) ppsData);
   }
   if (sampleList) {
-    //free((void*) sampleList);
+    free((void*) sampleList);
   }
   frameData = data;
   frameDataLength = length;

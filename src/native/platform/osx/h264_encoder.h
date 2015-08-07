@@ -4,8 +4,7 @@
 enum ENALUnitType {
   ENALUnitSPS,
   ENALUnitPPS,
-  ENALUnitSlice,
-  ENALUnitIDRSlice
+  ENALUnitSlice
 };
 
 static const size_t DEFAULT_SAMPLE_COUNT = 40;

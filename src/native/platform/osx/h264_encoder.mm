@@ -10,6 +10,27 @@ static CMTimeValue s_forcedKeyframePTS = 0;
 
 static std::mutex m_encodeMutex;
 
+static size_t skipDisposable(const uint8_t *data, size_t size) {
+  size_t pos = 0;
+  while (pos < size) {
+    size_t len = 0;
+    for (int j = 4; j--; pos++) {
+      len |= (data[pos] << (j * 8));
+    }
+    uint8_t flag = data[pos];
+    bool disposable = ((flag >> 5) & 0x03) == 0;
+    //uint8_t type = (flag & 0x1F);
+    //printf("\ttype=%d, size=%lu, disposable=%d\n", type, len, disposable);
+    if (disposable) {
+      pos += len;
+    } else {
+      pos -= 4;
+      break;
+    }
+  }
+  return pos;
+}
+
 void vtCallback(void *outputCallbackRefCon,
                 void *sourceFrameRefCon,
                 OSStatus status,
@@ -30,7 +51,11 @@ void vtCallback(void *outputCallbackRefCon,
     dependsOnOthers = (CFBooleanRef)CFDictionaryGetValue(attachment, kCMSampleAttachmentKey_DependsOnOthers);
     isKeyframe = (dependsOnOthers == kCFBooleanFalse);
   }
-        
+
+  uint8_t *bufferData;
+  size_t size;
+  CMBlockBufferGetDataPointer(block, 0, NULL, &size, (char**) &bufferData);
+
   if (isKeyframe) {
     // Send the SPS and PPS.
     CMFormatDescriptionRef format = CMSampleBufferGetFormatDescription(sampleBuffer);
@@ -49,16 +74,16 @@ void vtCallback(void *outputCallbackRefCon,
 
     ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSPS, sps_buf, spsSize, pts.value, dts.value);
     ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitPPS, pps_buf, ppsSize, pts.value, dts.value);
+
+    size_t skipLen = skipDisposable(bufferData, size);
+    size -= skipLen;
+    bufferData += skipLen;
   }
         
-  char* bufferData;
-  size_t size;
-  CMBlockBufferGetDataPointer(block, 0, NULL, &size, &bufferData);
-
   uint8_t *buf = (uint8_t *)malloc(sizeof(uint8_t) * size);
   memcpy(buf, bufferData, size);
 
-  ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(isKeyframe ? ENALUnitIDRSlice : ENALUnitSlice, buf, size, pts.value, dts.value);
+  ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSlice, buf, size, pts.value, dts.value);
 }
 
 H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline, int ctsOffset)
@@ -179,27 +204,6 @@ static void printNAL(const uint8_t *data, const size_t size) {
 }
 #endif
 
-static size_t skipDisposable(const uint8_t *data, size_t size) {
-  size_t pos = 0;
-  while (pos < size) {
-    size_t len = 0;
-    for (int j = 4; j--; pos++) {
-      len |= (data[pos] << (j * 8));
-    }
-    uint8_t flag = data[pos];
-    bool disposable = ((flag >> 5) & 0x03) == 0;
-    //uint8_t type = (flag & 0x1F);
-    //printf("\ttype=%d, size=%lu, disposable=%d\n", type, len, disposable);
-    if (disposable) {
-      pos += len;
-    } else {
-      pos -= 4;
-      break;
-    }
-  }
-  return pos;
-}
-
 void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *data, size_t size, uint64_t pts, uint64_t dts)
 {
   m_encodeMutex.lock();
@@ -218,12 +222,6 @@ void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *dat
     //printf("PPS: type=%d\n", (data[0] & 0x1F));
     ppsData = data;
     ppsDataLen = size;
-    break;
-  case ENALUnitIDRSlice:
-    {
-      size_t skipLen = skipDisposable(data, size);
-      addEntry(data + skipLen, size - skipLen);
-    }
     break;
   case ENALUnitSlice:
     addEntry(data, size);
@@ -265,6 +263,7 @@ void H264Encoder::flushCompressedData()
     //printNAL(samples[i], len);
     memcpy((void *)p_buf, samples[i], len);
     p_buf += len;
+    free((void *) samples[i]);
   }
 
   [(id)m_client  setFrameData:(const void *) buf
@@ -286,6 +285,7 @@ void H264Encoder::flushCompressedData()
   maxSampleCount = DEFAULT_SAMPLE_COUNT;
 
   sampleByteLength = 0;
+  free((void *) samples);
   samples = (const uint8_t **)malloc(sizeof(uint8_t*) * maxSampleCount);
   sampleSizeList = (size_t *)malloc(sizeof(size_t) * maxSampleCount);
 }
