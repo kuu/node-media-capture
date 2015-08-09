@@ -383,7 +383,7 @@ Handle<Array> getSamplesArray(const std::vector<const Sample*> samples) {
   for (unsigned i = 0; i < samples.size(); i++) {
     Local<Object> obj = NanNew<Object>();
     obj->Set(NanNew<String>("size"), NanNew<Number>(samples[i]->size));
-    obj->Set(NanNew<String>("compositionTimeOffset"), NanNew<Number>(samples[i]->timeDelta));
+    //obj->Set(NanNew<String>("compositionTimeOffset"), NanNew<Number>(samples[i]->timeDelta));
     array->Set(i, obj);
   }
   return array;

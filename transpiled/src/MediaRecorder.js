@@ -119,9 +119,7 @@ var Muxer = (function () {
             sampleIsDifferenceSample: false,
             sampleDegradationPriority: 257
           }
-        }),
-        //IsoBmff.createElement('tfdt', {baseMediaDecodeTime: firstChunk.metadata.pts, version: 1}),
-        IsoBmff.createElement('tfdt', { baseMediaDecodeTime: 0, version: 1 })].concat(_toConsumableArray(truns)));
+        }), IsoBmff.createElement('tfdt', { baseMediaDecodeTime: firstChunk.metadata.pts, version: 1 })].concat(_toConsumableArray(truns)));
       });
     }
   }, {

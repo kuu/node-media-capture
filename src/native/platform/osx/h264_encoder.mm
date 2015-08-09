@@ -95,7 +95,7 @@ H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int out
   sampleByteLength(0),
   sampleSizeList((size_t *)malloc(sizeof(size_t) * DEFAULT_SAMPLE_COUNT)),
   sampleTimeList((int32_t *)malloc(sizeof(int32_t) * DEFAULT_SAMPLE_COUNT)),
-  sampleCount(0), maxSampleCount(DEFAULT_SAMPLE_COUNT), m_timescale(1000), m_baseTimeOffset(0)
+  sampleCount(0), maxSampleCount(DEFAULT_SAMPLE_COUNT), m_timescale(1000), m_baseTimeOffset(0), m_firstBaseTimeOffset(0)
 {
   setupCompressionSession(useBaseline);
 }
@@ -220,7 +220,8 @@ void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *dat
     //printf("SPS: type=%d\n", (data[0] & 0x1F));
     spsData = data;
     spsDataLen = size;
-    m_timescale = timescale;
+    //m_timescale = timescale;
+    m_timescale = 36000; // For some reason unable to use actual value.
     break;
   case ENALUnitPPS:
     //printf("PPS: type=%d\n", (data[0] & 0x1F));
@@ -244,6 +245,9 @@ void H264Encoder::addEntry(const uint8_t *data, size_t size, int64_t timeDelta)
   sampleByteLength += size;
   if (sampleCount == 0) {
     m_baseTimeOffset = timeDelta;
+    if (m_firstBaseTimeOffset == 0) {
+      m_firstBaseTimeOffset = m_baseTimeOffset;
+    }
   }
   sampleTimeList[sampleCount] = ((timeDelta - m_baseTimeOffset) & 0xFFFFFFFF);
   if (++sampleCount >= maxSampleCount) {
@@ -285,7 +289,7 @@ void H264Encoder::flushCompressedData()
     sampleTimeList: sampleTimeList
     sampleListLength: sampleCount
     sampleTimeScale: m_timescale
-    sampleBaseTimeOffset: m_baseTimeOffset
+    sampleBaseTimeOffset: m_baseTimeOffset - m_firstBaseTimeOffset
   ];
 
   spsData = nullptr;

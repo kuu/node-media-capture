@@ -56,6 +56,7 @@ private:
   size_t maxSampleCount;
   int32_t m_timescale;
   int64_t m_baseTimeOffset;
+  int64_t m_firstBaseTimeOffset;
 };
 
 #endif // H264_ENCODER_H
