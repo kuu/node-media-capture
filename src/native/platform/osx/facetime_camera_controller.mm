@@ -141,7 +141,7 @@ static int frameHeight = 0;
   }
 
   // Init encoder
-  encoder = new H264Encoder(self, 1280, 720, width, height, 30, 40000, true, 0);
+  encoder = new H264Encoder(self, 1280, 720, width, height, 30, 8000, true);
 
   frameCounter = 0;
   isPaused = YES;
@@ -320,6 +320,8 @@ const int kFrameNum = 30;
   //NSData *data = [NSData dataWithBytes:baseAddress length:bufferSize];
 
   CMTime pts = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+
+  //NSLog(@"PTS=%qi / %i = %qi", pts.value, pts.timescale, (pts.value / pts.timescale));
 
   // Encode one frame.
   encoder->pushBuffer((const unsigned char *) pixelBuffer, bufferSize, pts.value, pts.timescale, frameCounter == 0 ? true : false);

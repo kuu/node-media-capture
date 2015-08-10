@@ -86,10 +86,10 @@ void vtCallback(void *outputCallbackRefCon,
   ((H264Encoder*)outputCallbackRefCon)->compressionSessionOutput(ENALUnitSlice, buf, size, pts.value, pts.timescale);
 }
 
-H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline, int ctsOffset)
+H264Encoder::H264Encoder(void *client, int inputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline)
  : m_client(client), m_inputFrameW(inputFrameW), m_inputFrameH(inputFrameH),
   m_outputFrameW(outputFrameW), m_outputFrameH(outputFrameH),
-  m_fps(fps), m_bitrate(bitrate), m_ctsOffset(ctsOffset), m_flush(false),
+  m_fps(fps), m_bitrate(bitrate), m_flush(false),
   spsData(nullptr), spsDataLen(0), ppsData(nullptr), ppsDataLen(0),
   samples((const uint8_t **)malloc(sizeof(uint8_t*) * DEFAULT_SAMPLE_COUNT)),
   sampleByteLength(0),
@@ -120,7 +120,7 @@ void H264Encoder::pushBuffer(const uint8_t *const data, size_t size, const int64
 
     //printf("\tdelta: %d\n", timestamp);
 
-    CMTime pts = CMTimeMake(timestamp + m_ctsOffset, timescale); // timestamp is in ms.
+    CMTime pts = CMTimeMake(timestamp, timescale);
     CMTime dur = CMTimeMake(1, m_fps);
     VTEncodeInfoFlags flags;
 
@@ -128,12 +128,9 @@ void H264Encoder::pushBuffer(const uint8_t *const data, size_t size, const int64
 
     if (forceKeyFrame) {
       s_forcedKeyframePTS = pts.value;
-
-      frameProps = CFDictionaryCreateMutable(kCFAllocatorDefault, 1,&kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-
+      frameProps = CFDictionaryCreateMutable(kCFAllocatorDefault, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
       CFDictionaryAddValue(frameProps, kVTEncodeFrameOptionKey_ForceKeyFrame, kCFBooleanTrue);
     }
-
     VTCompressionSessionEncodeFrame(session, (CVPixelBufferRef)data, pts, dur, frameProps, NULL, &flags);
 
     if (forceKeyFrame) {
@@ -220,8 +217,7 @@ void H264Encoder::compressionSessionOutput(ENALUnitType type, const uint8_t *dat
     //printf("SPS: type=%d\n", (data[0] & 0x1F));
     spsData = data;
     spsDataLen = size;
-    //m_timescale = timescale;
-    m_timescale = 36000; // For some reason unable to use actual value.
+    m_timescale = timescale;
     break;
   case ENALUnitPPS:
     //printf("PPS: type=%d\n", (data[0] & 0x1F));
@@ -366,7 +362,6 @@ void H264Encoder::setupCompressionSession(bool useBaseline)
     m_compressionSession = session;
 
     const int32_t v = m_fps * 1; // 1-second kfi
-
     CFNumberRef ref = CFNumberCreate(NULL, kCFNumberSInt32Type, &v);
     err = VTSessionSetProperty(session, kVTCompressionPropertyKey_MaxKeyFrameInterval, ref);
     CFRelease(ref);

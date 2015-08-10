@@ -11,7 +11,7 @@ static const size_t DEFAULT_SAMPLE_COUNT = 40;
 
 class H264Encoder {
 public:
-  H264Encoder(void *client, int intputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline = true, int ctsOffset = 0);
+  H264Encoder(void *client, int intputFrameW, int inputFrameH, int outputFrameW, int outputFrameH, int fps, int bitrate, bool useBaseline = true);
   ~H264Encoder();
 
   CVPixelBufferPoolRef pixelBufferPool();
@@ -41,7 +41,6 @@ private:
   int                    m_outputFrameH;
   int                    m_fps;
   int                    m_bitrate;
-  int                    m_ctsOffset;
   bool                   m_baseline;
   bool                   m_flush;
   const uint8_t *spsData;
