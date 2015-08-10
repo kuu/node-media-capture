@@ -64,6 +64,7 @@
           nodeImage = document.querySelector('.node-image'),
           videoInitialized = false,
           initSegment, mediaSegmentQueue = [],
+          SEGMENTS_TO_BUFFER = 10,
           MAX_QUEUE_LEN = 20;
 
       button.addEventListener('click', function () {
@@ -75,23 +76,37 @@
               mediaSegmentQueue.push(e.data);
             }
           } else {
-            initSegment = e.data;
-            var ms = new MediaSource();
-            ms.addEventListener('sourceopen', function () {
-              var sb = ms.addSourceBuffer('video/mp4; codecs="avc1.42E01E, mp4a.40.2"');
-              sb.addEventListener('updateend', function () {
-                var mediaSegment = mediaSegmentQueue.shift();
-                if (mediaSegment) {
-                  console.log('updateend: Appending MediaSegment size=', mediaSegment.byteLength);
-                  sb.appendBuffer(mediaSegment);
-                }
+            console.log('node-camera: buf.size=', e.data.byteLength);
+
+            if (!initSegment) {
+              initSegment = e.data;
+            } else {
+              mediaSegmentQueue.push(e.data);
+
+              if (mediaSegmentQueue.length < SEGMENTS_TO_BUFFER) {
+                return;
+              }
+
+              var ms = new MediaSource();
+              ms.addEventListener('sourceopen', function () {
+                var sb = ms.addSourceBuffer('video/mp4; codecs="avc1.42E01E"');
+                //sb.addEventListener('updateend', function () {
+                sb.addEventListener('update', function () {
+                  var mediaSegment = mediaSegmentQueue.shift();
+                  if (mediaSegment) {
+                    console.log('updateend: Appending MediaSegment size=', mediaSegment.byteLength);
+                    sb.appendBuffer(new Uint8Array(mediaSegment, 0, mediaSegment.byteLength));
+                  } else {
+                    console.warn('updateend: MediaSegment is not available.');
+                  }
+                }, false);
+                console.log('sourceopen: Appending InitSegment size=', initSegment.byteLength);
+                sb.appendBuffer(new Uint8Array(initSegment, 0, initSegment.byteLength));
+                nodeVideo.play();
               }, false);
-              nodeVideo.play();
-              console.log('sourceopen: Appending InitSegment size=', initSegment.byteLength);
-              sb.appendBuffer(initSegment);
-            }, false);
-            nodeVideo.src = URL.createObjectURL(ms);
-            videoInitialized = true;
+              nodeVideo.src = URL.createObjectURL(ms);
+              videoInitialized = true;
+            }
           }
         });
 
