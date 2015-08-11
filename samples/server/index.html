@@ -64,16 +64,49 @@
           nodeImage = document.querySelector('.node-image'),
           videoInitialized = false,
           initSegment, mediaSegmentQueue = [],
-          SEGMENTS_TO_BUFFER = 10,
-          MAX_QUEUE_LEN = 20;
+          SEGMENTS_TO_BUFFER = 2,
+          MAX_QUEUE_LEN = 20,
+          WINDOW_SIZE = 30000,
+          isExhausted = false,
+          ms, sb;
+
+      function appendNextMediaSegment() {
+        if (ms.readyState == 'closed') {
+          return;
+        }
+
+        // Make sure the previous append is not still pending.
+        if (sb.updating) {
+          return;
+        }
+
+        var mediaSegment = mediaSegmentQueue.shift();
+        if (mediaSegment) {
+          // NOTE: If mediaSource.readyState == “ended”, this appendBuffer() call will
+          // cause mediaSource.readyState to transition to "open". The web application
+          // should be prepared to handle multiple “sourceopen” events.
+          sb.appendBuffer(mediaSegment);
+          console.log('Appending MediaSegment size=', mediaSegment.byteLength);
+        } else {
+          // Error fetching the next media segment.
+          // ms.endOfStream('network');
+          console.warn('MediaSegment is not available.');
+          isExhausted = true;
+        }
+      }
 
       button.addEventListener('click', function () {
         socket.emit('start');
         socket.on('node-camera', function (e) {
+
           if (videoInitialized) {
             if (mediaSegmentQueue.length < MAX_QUEUE_LEN) {
               console.log('node-camera: buf.size=', e.data.byteLength);
               mediaSegmentQueue.push(e.data);
+              if (isExhausted) {
+                isExhausted = false;
+                appendNextMediaSegment();
+              }
             }
           } else {
             console.log('node-camera: buf.size=', e.data.byteLength);
@@ -87,22 +120,37 @@
                 return;
               }
 
-              var ms = new MediaSource();
-              ms.addEventListener('sourceopen', function () {
-                var sb = ms.addSourceBuffer('video/mp4; codecs="avc1.42E01E"');
-                //sb.addEventListener('updateend', function () {
-                sb.addEventListener('update', function () {
-                  var mediaSegment = mediaSegmentQueue.shift();
-                  if (mediaSegment) {
-                    console.log('updateend: Appending MediaSegment size=', mediaSegment.byteLength);
-                    sb.appendBuffer(new Uint8Array(mediaSegment, 0, mediaSegment.byteLength));
-                  } else {
-                    console.warn('updateend: MediaSegment is not available.');
-                  }
+              ms = new MediaSource();
+              ms.addEventListener('sourceopen', function onSourceOpen() {
+                ms.removeEventListener('sourceopen', onSourceOpen, false);
+                console.log('sourceopen event.');
+
+                sb = ms.addSourceBuffer('video/mp4; codecs="avc1.42E01E"');
+
+                sb.addEventListener('error', function onError() {
+                  sb.removeEventListener('updateend', onError);
+                  console.log('error event.');
                 }, false);
-                console.log('sourceopen: Appending InitSegment size=', initSegment.byteLength);
+
+                sb.addEventListener('updateend', function onUpdateEnd() {
+                  sb.removeEventListener('updateend', onUpdateEnd);
+                  console.log('updateend event.');
+                  appendNextMediaSegment();
+                }, false);
+
+                nodeVideo.addEventListener('canplay', function () {
+                  console.log('canplay event.');
+                  appendNextMediaSegment();
+                }, false);
+
+                nodeVideo.addEventListener('progress', function () {
+                  console.log('progress event.');
+                  appendNextMediaSegment();
+                }, false);
+
+                console.log('Appending InitSegment size=', initSegment.byteLength);
                 sb.appendBuffer(new Uint8Array(initSegment, 0, initSegment.byteLength));
-                nodeVideo.play();
+                //nodeVideo.play();
               }, false);
               nodeVideo.src = URL.createObjectURL(ms);
               videoInitialized = true;
@@ -110,7 +158,7 @@
           }
         });
 
-        navigator.webkitGetUserMedia({video: true},
+        typeof navigator.webkitGetUserMedia === 'function' && navigator.webkitGetUserMedia({video: true},
           function (stream) {
             var video = document.createElement('video');
             video.src = URL.createObjectURL(stream);

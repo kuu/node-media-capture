@@ -112,7 +112,7 @@ class Muxer {
           'tfhd',
           {
             trackId: i + 1,
-            baseDataOffset: base,
+            //baseDataOffset: base,
             defaultSampleDuration: firstChunk.metadata.timeScale / track.settings.frameRate,
             defaultSampleSize: truns[0].props.samples[0].size,
             defaultSampleFlags: {
