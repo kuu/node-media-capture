@@ -1,20 +1,12 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _slicedToArray = (function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i['return']) _i['return'](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError('Invalid attempt to destructure non-iterable instance'); } }; })();
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _EventTarget2 = require('./EventTarget');
 
@@ -44,21 +36,29 @@ var _HAL = require('./HAL');
 
 var _HAL2 = _interopRequireDefault(_HAL);
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var privateData = new WeakMap();
 
 // Private function
 function prepareSources(manager) {
-  var deviceList = undefined,
+  var deviceList = void 0,
       sources = manager.sources,
-      cameras = sources.get(_Source2['default'].TYPE_CAMERA),
-      microphones = sources.get(_Source2['default'].TYPE_MICROPHONE),
+      cameras = sources.get(_Source2.default.TYPE_CAMERA),
+      microphones = sources.get(_Source2.default.TYPE_MICROPHONE),
       promises = [];
 
   deviceList = manager.hal.getAvailableDeviceInfo();
   privateData.get(manager).deviceInfoList = deviceList;
 
   deviceList.forEach(function (deviceInfo) {
-    var source = undefined,
+    var source = void 0,
         addSource = function addSource(sourceSet, SourceClass) {
       var alreadyExists = false,
           s = null;
@@ -80,8 +80,8 @@ function prepareSources(manager) {
         _iteratorError = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion && _iterator['return']) {
-            _iterator['return']();
+          if (!_iteratorNormalCompletion && _iterator.return) {
+            _iterator.return();
           }
         } finally {
           if (_didIteratorError) {
@@ -98,9 +98,9 @@ function prepareSources(manager) {
     };
 
     if (deviceInfo.kind === 'videoinput') {
-      source = addSource(cameras, _Camera2['default']);
+      source = addSource(cameras, _Camera2.default);
     } else if (deviceInfo.kind === 'audioinput') {
-      source = addSource(microphones, _Microphone2['default']);
+      source = addSource(microphones, _Microphone2.default);
     }
 
     if (source) {
@@ -141,8 +141,8 @@ function prepareSources(manager) {
                 _iteratorError3 = err;
               } finally {
                 try {
-                  if (!_iteratorNormalCompletion3 && _iterator3['return']) {
-                    _iterator3['return']();
+                  if (!_iteratorNormalCompletion3 && _iterator3.return) {
+                    _iterator3.return();
                   }
                 } finally {
                   if (_didIteratorError3) {
@@ -157,8 +157,8 @@ function prepareSources(manager) {
           _iteratorError2 = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion2 && _iterator2['return']) {
-              _iterator2['return']();
+            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+              _iterator2.return();
             }
           } finally {
             if (_didIteratorError2) {
@@ -184,7 +184,7 @@ var Entry = function Entry(source) {
   this.sink = null;
 };
 
-var SourceManager = (function (_EventTarget) {
+var SourceManager = function (_EventTarget) {
   _inherits(SourceManager, _EventTarget);
 
   _createClass(SourceManager, null, [{
@@ -195,23 +195,21 @@ var SourceManager = (function (_EventTarget) {
   }]);
 
   function SourceManager() {
-    var _this = this;
-
     _classCallCheck(this, SourceManager);
 
-    var hal = undefined;
+    var hal = void 0;
 
-    _get(Object.getPrototypeOf(SourceManager.prototype), 'constructor', this).call(this);
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(SourceManager).call(this));
 
-    privateData.set(this, {
+    privateData.set(_this, {
       deviceInfoList: null,
       prepareSources: prepareSources,
       error: false
     });
 
-    this.sources = new Map([[_Source2['default'].TYPE_CAMERA, new Set()], [_Source2['default'].TYPE_MICROPHONE, new Set()]]);
-    this.trackEntries = new Map();
-    hal = this.hal = new _HAL2['default']();
+    _this.sources = new Map([[_Source2.default.TYPE_CAMERA, new Set()], [_Source2.default.TYPE_MICROPHONE, new Set()]]);
+    _this.trackEntries = new Map();
+    hal = _this.hal = new _HAL2.default();
 
     // Device discovery
     hal.addEventListener('change', function (e) {
@@ -220,11 +218,12 @@ var SourceManager = (function (_EventTarget) {
       });
     }, false);
 
-    privateData.get(this).prepareSources(this).then(function () {
+    privateData.get(_this).prepareSources(_this).then(function () {
       privateData.get(_this).error = false;
     }, function () {
       privateData.get(_this).error = true;
     });
+    return _this;
   }
 
   _createClass(SourceManager, [{
@@ -236,8 +235,8 @@ var SourceManager = (function (_EventTarget) {
       }
 
       var trackEntries = this.trackEntries,
-          entry = undefined,
-          sources = undefined;
+          entry = void 0,
+          sources = void 0;
 
       entry = trackEntries.get(trackId);
 
@@ -248,7 +247,7 @@ var SourceManager = (function (_EventTarget) {
       sources = this.sources.get(sourceType);
 
       if (!sources) {
-        _Util2['default'].throwError(new Error('Unsupported sourceType.'));
+        _Util2.default.throwError(new Error('Unsupported sourceType.'));
       }
 
       var _iteratorNormalCompletion4 = true;
@@ -267,8 +266,8 @@ var SourceManager = (function (_EventTarget) {
         _iteratorError4 = err;
       } finally {
         try {
-          if (!_iteratorNormalCompletion4 && _iterator4['return']) {
-            _iterator4['return']();
+          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+            _iterator4.return();
           }
         } finally {
           if (_didIteratorError4) {
@@ -277,18 +276,18 @@ var SourceManager = (function (_EventTarget) {
         }
       }
 
-      _Util2['default'].throwError(new Error('Invalid constraints.'));
+      _Util2.default.throwError(new Error('Invalid constraints.'));
     }
   }, {
     key: 'detachSource',
     value: function detachSource(trackId) {
       var trackEntries = this.trackEntries,
-          entry = undefined;
+          entry = void 0;
 
       entry = trackEntries.get(trackId);
       if (entry) {
         entry.source.dereference(trackId);
-        trackEntries['delete'](trackId);
+        trackEntries.delete(trackId);
       }
     }
   }, {
@@ -316,17 +315,17 @@ var SourceManager = (function (_EventTarget) {
         });
 
         if (basic) {
-          var _source$applyConstraints = source.applyConstraints(basic);
-
+          var _source$applyConstrai = source.applyConstraints(basic);
           // Apply basic constraint.
 
-          var _source$applyConstraints2 = _slicedToArray(_source$applyConstraints, 2);
 
-          result = _source$applyConstraints2[0];
-          reason = _source$applyConstraints2[1];
+          var _source$applyConstrai2 = _slicedToArray(_source$applyConstrai, 2);
+
+          result = _source$applyConstrai2[0];
+          reason = _source$applyConstrai2[1];
 
           if (!result) {
-            _Util2['default'].throwError(new _MediaStreamError2['default']('OverconstrainedError', 'Unable to apply constraints.', reason));
+            _Util2.default.throwError(new _MediaStreamError2.default('OverconstrainedError', 'Unable to apply constraints.', reason));
           }
           if (!advanced) {
             source.update();
@@ -337,12 +336,12 @@ var SourceManager = (function (_EventTarget) {
         if (advanced) {
           // Apply advanced constraints.
           if (advanced.some(function (constraint) {
-            var _source$applyConstraints3 = source.applyConstraints(constraint);
+            var _source$applyConstrai3 = source.applyConstraints(constraint);
 
-            var _source$applyConstraints32 = _slicedToArray(_source$applyConstraints3, 2);
+            var _source$applyConstrai4 = _slicedToArray(_source$applyConstrai3, 2);
 
-            result = _source$applyConstraints32[0];
-            reason = _source$applyConstraints32[1];
+            result = _source$applyConstrai4[0];
+            reason = _source$applyConstrai4[1];
 
             return result;
           })) {
@@ -350,7 +349,7 @@ var SourceManager = (function (_EventTarget) {
             return source;
           }
         }
-        _Util2['default'].throwError(new _MediaStreamError2['default']('OverconstrainedError', 'Unable to apply constraints.', reason));
+        _Util2.default.throwError(new _MediaStreamError2.default('OverconstrainedError', 'Unable to apply constraints.', reason));
       });
     }
   }, {
@@ -418,8 +417,8 @@ var SourceManager = (function (_EventTarget) {
             _iteratorError5 = err;
           } finally {
             try {
-              if (!_iteratorNormalCompletion5 && _iterator5['return']) {
-                _iterator5['return']();
+              if (!_iteratorNormalCompletion5 && _iterator5.return) {
+                _iterator5.return();
               }
             } finally {
               if (_didIteratorError5) {
@@ -443,10 +442,10 @@ var SourceManager = (function (_EventTarget) {
   }]);
 
   return SourceManager;
-})(_EventTarget3['default']);
+}(_EventTarget3.default);
 
-exports['default'] = SourceManager;
+exports.default = SourceManager;
 
-Promise.any = _Util2['default'].promiseAny;
+
+Promise.any = _Util2.default.promiseAny;
 SourceManager.instance = new SourceManager();
-module.exports = exports['default'];

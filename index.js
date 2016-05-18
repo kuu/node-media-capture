@@ -1,6 +1,6 @@
-MediaDevices = require('./transpiled/src/MediaDevices');
-MediaRecorder = require('./transpiled/src/MediaRecorder');
-ImageCapture = require('./transpiled/src/ImageCapture');
+MediaDevices = require('./transpiled/src/MediaDevices').default;
+MediaRecorder = require('./transpiled/src/MediaRecorder').default;
+ImageCapture = require('./transpiled/src/ImageCapture').default;
 
 module.exports = {
   navigator: {

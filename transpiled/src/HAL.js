@@ -1,45 +1,47 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _EventTarget2 = require('./EventTarget');
 
 var _EventTarget3 = _interopRequireDefault(_EventTarget2);
 
-var _buildReleaseAddon = require('../../build/Release/addon');
+var _addon = require('../../build/Release/addon');
 
-var _buildReleaseAddon2 = _interopRequireDefault(_buildReleaseAddon);
+var _addon2 = _interopRequireDefault(_addon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var TEST_MODE = process.env.NODE_ENV !== 'production';
 var TIMER_INTERVAL = TEST_MODE ? 100 : 500;
 
 var privateData = new WeakMap();
 
-var HAL = (function (_EventTarget) {
+var HAL = function (_EventTarget) {
   _inherits(HAL, _EventTarget);
 
   function HAL() {
     _classCallCheck(this, HAL);
 
-    _get(Object.getPrototypeOf(HAL.prototype), 'constructor', this).call(this);
-    this.supportedConstraints = _buildReleaseAddon2['default'].getSupportedConstraints();
-    privateData.set(this, {
-      supportedCodecs: _buildReleaseAddon2['default'].getSupportedCodecs(),
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(HAL).call(this));
+
+    _this.supportedConstraints = _addon2.default.getSupportedConstraints();
+    privateData.set(_this, {
+      supportedCodecs: _addon2.default.getSupportedCodecs(),
       fetchTimers: {},
       retryTimers: {}
     });
+    return _this;
   }
 
   _createClass(HAL, [{
@@ -58,7 +60,7 @@ var HAL = (function (_EventTarget) {
           groupId: null
         }];
       }
-      var deviceInfo = _buildReleaseAddon2['default'].getAvailableDeviceInfo();
+      var deviceInfo = _addon2.default.getAvailableDeviceInfo();
       try {
         deviceInfo.forEach(function (info) {
           info.capabilities = JSON.parse(info.capabilities);
@@ -77,7 +79,7 @@ var HAL = (function (_EventTarget) {
           fulfill(true);
           return;
         }
-        _buildReleaseAddon2['default'].initDevice(deviceId, settings, function (e, data) {
+        _addon2.default.initDevice(deviceId, settings, function (e, data) {
           if (e) {
             console.log('[FAILED] HAL.initDevice deviceId=' + deviceId + ', settings=', settings);
             reject(e);
@@ -91,14 +93,14 @@ var HAL = (function (_EventTarget) {
   }, {
     key: 'startDevice',
     value: function startDevice(deviceId, callback) {
-      var _this = this;
+      var _this2 = this;
 
       return new Promise(function (fulfill, reject) {
         console.log('HAL.startDevice deviceId=' + deviceId);
         if (!TEST_MODE) {
-          _buildReleaseAddon2['default'].startDevice(deviceId);
+          _addon2.default.startDevice(deviceId);
         }
-        var fetchTimers = privateData.get(_this).fetchTimers;
+        var fetchTimers = privateData.get(_this2).fetchTimers;
         if (fetchTimers[deviceId]) {
           reject(new Error('Device already started.'));
         } else {
@@ -108,7 +110,7 @@ var HAL = (function (_EventTarget) {
               callback(dummyData);
               return;
             }
-            var buf = _buildReleaseAddon2['default'].fetchDevice(deviceId);
+            var buf = _addon2.default.fetchDevice(deviceId);
             if (buf) {
               callback(buf);
             }
@@ -120,11 +122,11 @@ var HAL = (function (_EventTarget) {
   }, {
     key: 'stopDevice',
     value: function stopDevice(deviceId) {
-      var _this2 = this;
+      var _this3 = this;
 
       return new Promise(function (fulfill, reject) {
         console.log('HAL.stopDevice deviceId=' + deviceId);
-        var fetchTimers = privateData.get(_this2).fetchTimers;
+        var fetchTimers = privateData.get(_this3).fetchTimers;
         if (fetchTimers[deviceId]) {
           clearInterval(fetchTimers[deviceId]);
           fetchTimers[deviceId] = void 0;
@@ -161,14 +163,14 @@ var HAL = (function (_EventTarget) {
   }, {
     key: 'takeSnapshot',
     value: function takeSnapshot(deviceId) {
-      var _this3 = this;
+      var _this4 = this;
 
       return new Promise(function (fulfill, reject) {
         console.log('HAL.takeSnapshot deviceId=' + deviceId);
         if (!TEST_MODE) {
-          _buildReleaseAddon2['default'].takeSnapshot(deviceId);
+          _addon2.default.takeSnapshot(deviceId);
         }
-        var retryTimers = privateData.get(_this3).retryTimers;
+        var retryTimers = privateData.get(_this4).retryTimers;
         if (retryTimers[deviceId]) {
           reject(new Error('Device currently taking snapshot.'));
         } else {
@@ -177,7 +179,7 @@ var HAL = (function (_EventTarget) {
               fulfill(true);
               return;
             }
-            var buf = _buildReleaseAddon2['default'].fetchDevice(deviceId);
+            var buf = _addon2.default.fetchDevice(deviceId);
             if (buf) {
               clearInterval(retryTimers[deviceId]);
               retryTimers[deviceId] = void 0;
@@ -201,7 +203,6 @@ var HAL = (function (_EventTarget) {
   }]);
 
   return HAL;
-})(_EventTarget3['default']);
+}(_EventTarget3.default);
 
-exports['default'] = HAL;
-module.exports = exports['default'];
+exports.default = HAL;

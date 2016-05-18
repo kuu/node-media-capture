@@ -1,7 +1,5 @@
 'use strict';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 var _path = require('path');
 
 var _path2 = _interopRequireDefault(_path);
@@ -10,23 +8,25 @@ var _express = require('express');
 
 var _express2 = _interopRequireDefault(_express);
 
-var _socketIo = require('socket.io');
+var _socket = require('socket.io');
 
-var _socketIo2 = _interopRequireDefault(_socketIo);
+var _socket2 = _interopRequireDefault(_socket);
 
 var _ = require('../../..');
 
 var _2 = _interopRequireDefault(_);
 
-var navigator = _2['default'].navigator;
-var MediaRecorder = _2['default'].MediaRecorder;
-var ImageCapture = _2['default'].ImageCapture;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var app = (0, _express2['default'])(),
+var navigator = _2.default.navigator;
+var MediaRecorder = _2.default.MediaRecorder;
+var ImageCapture = _2.default.ImageCapture;
+
+var app = (0, _express2.default)(),
     port = process.env.PORT || 8080,
-    BASE_DIR = _path2['default'].join(__dirname, './');
+    BASE_DIR = _path2.default.join(__dirname, './');
 
-app.use(_express2['default']['static'](BASE_DIR));
+app.use(_express2.default.static(BASE_DIR));
 
 app.get('/', function (req, res) {
   res.sendFile(BASE_DIR + 'index.html');
@@ -44,9 +44,9 @@ if (require.main === module) {
   (function () {
 
     var http = start(),
-        io = (0, _socketIo2['default'])(http),
-        recorder = undefined,
-        capture = undefined;
+        io = (0, _socket2.default)(http),
+        recorder = void 0,
+        capture = void 0;
 
     io.on('connection', function (socket) {
 

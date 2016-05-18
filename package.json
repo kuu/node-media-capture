@@ -18,7 +18,7 @@
     "test": "npm run build-native && npm run lint && npm run transpile && mocha transpiled/test/spec/**/*.js",
     "kon": "kontainer",
     "copy": "cp samples/server/*.html transpiled/samples/server/",
-    "start": "npm run build-native && npm run lint && npm run transpile && npm run copy && NODE_ENV=production node transpiled/samples/server/test.js",
+    "start": "npm run build-native && npm run lint && npm run transpile && npm run copy && NODE_ENV=production node transpiled/samples/server/index.js",
     "capture": "NODE_ENV=production node transpiled/samples/server/test.js"
   },
   "repository": {
@@ -38,17 +38,20 @@
   },
   "homepage": "https://github.com/kuu/node-media-capture-api",
   "devDependencies": {
-    "babel": "5.8.5",
-    "babel-eslint": "^3.1.21",
-    "eslint": "^0.24.0",
-    "mocha": "^2.2.5",
-    "power-assert": "^0.11.0",
-    "sinon": "^1.14.1"
+    "babel-cli": "^6.7.5",
+    "babel-plugin-transform-kontainer-js": "0.0.3",
+    "babel-preset-es2015": "^6.6.0",
+    "eslint": "^2.8.0",
+    "install": "^0.6.1",
+    "mocha": "^2.4.5",
+    "npm": "^3.8.6",
+    "power-assert": "^1.3.1",
+    "sinon": "^1.17.3"
   },
   "dependencies": {
-    "express": "^4.13.1",
-    "kontainer-js": "^1.2.1",
-    "nan": "^1.8.4",
-    "socket.io": "^1.3.6"
+    "express": "^4.13.4",
+    "kontainer-js": "^1.6.23",
+    "nan": "^2.2.1",
+    "socket.io": "^1.4.5"
   }
 }

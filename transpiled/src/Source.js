@@ -1,18 +1,12 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _EventTarget2 = require('./EventTarget');
 
@@ -22,25 +16,36 @@ var _Util = require('./Util');
 
 var _Util2 = _interopRequireDefault(_Util);
 
-var Source = (function (_EventTarget) {
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Source = function (_EventTarget) {
   _inherits(Source, _EventTarget);
 
   function Source(hal, sourceType, deviceId, groupId, capabilities) {
     _classCallCheck(this, Source);
 
     var settings;
-    _get(Object.getPrototypeOf(Source.prototype), 'constructor', this).call(this);
-    this.hal = hal;
-    this.sourceType = sourceType;
-    this.deviceId = deviceId;
-    this.groupId = groupId;
-    this.capabilities = capabilities;
-    settings = this.settings = {};
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Source).call(this));
+
+    _this.hal = hal;
+    _this.sourceType = sourceType;
+    _this.deviceId = deviceId;
+    _this.groupId = groupId;
+    _this.capabilities = capabilities;
+    settings = _this.settings = {};
     Object.keys(capabilities).forEach(function (key) {
       settings[key] = capabilities[key].defaultValue;
     });
-    this.stopped = true;
-    this.refs = new Set();
+    _this.stopped = true;
+    _this.refs = new Set();
+    return _this;
   }
 
   _createClass(Source, [{
@@ -72,7 +77,7 @@ var Source = (function (_EventTarget) {
       if (!refs.has(trackId)) {
         return this;
       }
-      refs['delete'](trackId);
+      refs.delete(trackId);
       if (refs.size === 0) {
         //console.log('\tstop! trackId=' + trackId);
         this.stop();
@@ -114,12 +119,12 @@ var Source = (function (_EventTarget) {
   }, {
     key: 'getCapabilities',
     value: function getCapabilities() {
-      return _Util2['default'].copyObject(this.capabilities);
+      return _Util2.default.copyObject(this.capabilities);
     }
   }, {
     key: 'getSettings',
     value: function getSettings() {
-      return _Util2['default'].copyObject(this.settings);
+      return _Util2.default.copyObject(this.settings);
     }
   }, {
     key: 'mergeSettings',
@@ -132,7 +137,7 @@ var Source = (function (_EventTarget) {
   }, {
     key: 'applyConstraints',
     value: function applyConstraints(constraints) {
-      var _this = this;
+      var _this2 = this;
 
       var pass,
           capabilities = this.capabilities,
@@ -144,22 +149,22 @@ var Source = (function (_EventTarget) {
 
         requirement = capabilities[key];
         proposed = constraints[key];
-        if (typeof proposed !== 'object') {
+        if ((typeof proposed === 'undefined' ? 'undefined' : _typeof(proposed)) !== 'object') {
           proposed = { exact: proposed };
         }
 
         if (requirement === void 0) {
-          if (_this[key] === void 0) {
+          if (_this2[key] === void 0) {
             settings[key] = proposed.exact || proposed.ideal || proposed.max || proposed.min || 0;
             return true;
           }
-          requirement = _this[key];
+          requirement = _this2[key];
         }
 
         result = Object.keys(proposed).every(function (k) {
           var v = proposed[k],
               checkIfWithinRange = function checkIfWithinRange(value, range) {
-            if (typeof range !== 'object') {
+            if ((typeof range === 'undefined' ? 'undefined' : _typeof(range)) !== 'object') {
               return value === range;
             }
             if (range.oneOf) {
@@ -220,10 +225,10 @@ var Source = (function (_EventTarget) {
   }]);
 
   return Source;
-})(_EventTarget3['default']);
+}(_EventTarget3.default);
 
-exports['default'] = Source;
+exports.default = Source;
+
 
 Source.TYPE_CAMERA = 'camera';
 Source.TYPE_MICROPHONE = 'microphone';
-module.exports = exports['default'];

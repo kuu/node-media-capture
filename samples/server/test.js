@@ -12,10 +12,10 @@ navigator.mediaDevices.getUserMedia({video: true})
     recorder.ondataavailable = (buf) => {
       console.log('----- Captured from the FaceTime camera. size=' + buf.length);
       buffer = Buffer.concat([buffer, buf]);
-      if (buffer.length > 256000) {
+      if (buffer.length > 64000) {
         fs.writeFile(`./mp4/file-${i++}.mp4`, buffer, (e) => {
           console.log('\tfile written. size=' + buffer.length);
-          buffer.length = 0;
+          buffer = new Buffer(0);
         });
       }
     };

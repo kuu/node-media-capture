@@ -1,10 +1,8 @@
 'use strict';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+var _MediaStreamTrack = require('../../src/MediaStreamTrack');
 
-var _srcMediaStreamTrack = require('../../src/MediaStreamTrack');
-
-var _srcMediaStreamTrack2 = _interopRequireDefault(_srcMediaStreamTrack);
+var _MediaStreamTrack2 = _interopRequireDefault(_MediaStreamTrack);
 
 var _powerAssert = require('power-assert');
 
@@ -13,6 +11,8 @@ var _powerAssert2 = _interopRequireDefault(_powerAssert);
 var _sinon = require('sinon');
 
 var _sinon2 = _interopRequireDefault(_sinon);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 /*global describe, it, beforeEach, afterEach*/
 
@@ -44,7 +44,7 @@ describe('MediaStreamTrack', function () {
   var track;
 
   beforeEach(function () {
-    track = new _srcMediaStreamTrack2['default']('video', 'Internal Camera');
+    track = new _MediaStreamTrack2.default('video', 'Internal Camera');
   });
 
   afterEach(function () {
@@ -63,21 +63,21 @@ describe('MediaStreamTrack', function () {
   };
 
   it('has readonly members', function () {
-    _powerAssert2['default'].equal(canWrite(track, 'kind'), false);
-    _powerAssert2['default'].equal(canWrite(track, 'id'), false);
-    _powerAssert2['default'].equal(canWrite(track, 'label'), false);
-    _powerAssert2['default'].equal(canWrite(track, 'enabled'), true);
-    _powerAssert2['default'].equal(canWrite(track, 'muted'), false);
-    _powerAssert2['default'].equal(canWrite(track, 'onmute'), true);
-    _powerAssert2['default'].equal(canWrite(track, 'onunmute'), true);
-    _powerAssert2['default'].equal(canWrite(track, 'readyState'), false);
-    _powerAssert2['default'].equal(canWrite(track, 'onended'), true);
-    _powerAssert2['default'].equal(canWrite(track, 'onoverconstrained'), true);
+    _powerAssert2.default.equal(canWrite(track, 'kind'), false);
+    _powerAssert2.default.equal(canWrite(track, 'id'), false);
+    _powerAssert2.default.equal(canWrite(track, 'label'), false);
+    _powerAssert2.default.equal(canWrite(track, 'enabled'), true);
+    _powerAssert2.default.equal(canWrite(track, 'muted'), false);
+    _powerAssert2.default.equal(canWrite(track, 'onmute'), true);
+    _powerAssert2.default.equal(canWrite(track, 'onunmute'), true);
+    _powerAssert2.default.equal(canWrite(track, 'readyState'), false);
+    _powerAssert2.default.equal(canWrite(track, 'onended'), true);
+    _powerAssert2.default.equal(canWrite(track, 'onoverconstrained'), true);
   });
 
   it('can share the same media source with other MediaStreamTrack objects', function () {
-    var track2 = new _srcMediaStreamTrack2['default']('video', 'Internal Camera');
-    _powerAssert2['default'].equal(track2.source, track.source);
+    var track2 = new _MediaStreamTrack2.default('video', 'Internal Camera');
+    _powerAssert2.default.equal(track2.source, track.source);
     track2.stop();
   });
 
@@ -85,18 +85,18 @@ describe('MediaStreamTrack', function () {
     var track2, track3;
 
     track2 = track.clone();
-    _powerAssert2['default'].equal(track2.readyState, track.readyState);
+    _powerAssert2.default.equal(track2.readyState, track.readyState);
     track2.stop();
-    _powerAssert2['default'].notEqual(track2.readyState, track.readyState);
+    _powerAssert2.default.notEqual(track2.readyState, track.readyState);
     track3 = track2.clone();
-    _powerAssert2['default'].equal(track3.readyState, track2.readyState);
+    _powerAssert2.default.equal(track3.readyState, track2.readyState);
     track3.stop();
   });
 
   describe('MediaStreamTrack.stop()', function () {
     it('makes the source detached', function () {
       track.stop();
-      _powerAssert2['default'].equal(track.source, null);
+      _powerAssert2.default.equal(track.source, null);
     });
 
     /*
@@ -122,15 +122,15 @@ describe('MediaStreamTrack', function () {
     it('must return the value to which it was last set', function () {
       var isEnabled = track.enabled;
       track.enabled = !isEnabled;
-      _powerAssert2['default'].notEqual(track.enabled, isEnabled);
+      _powerAssert2.default.notEqual(track.enabled, isEnabled);
     });
 
     it('is always true when the track is created, unless the track is cloned from a disabled track', function () {
       var track2;
-      _powerAssert2['default'].equal(track.enabled, true);
+      _powerAssert2.default.equal(track.enabled, true);
       track.enabled = false;
       track2 = track.clone();
-      _powerAssert2['default'].equal(track2.enabled, false);
+      _powerAssert2.default.equal(track2.enabled, false);
       track2.stop();
     });
 
@@ -138,7 +138,7 @@ describe('MediaStreamTrack', function () {
       var isEnabled = track.enabled;
       track.stop();
       track.enabled = !isEnabled;
-      _powerAssert2['default'].notEqual(track.enabled, isEnabled);
+      _powerAssert2.default.notEqual(track.enabled, isEnabled);
     });
 
     it('renders silence when the value is false and the kind of the track is "audio"', function () {});
@@ -199,13 +199,13 @@ describe('MediaStreamTrack', function () {
         obj.handler(e);
       };
 
-      _sinon2['default'].spy(obj, 'handler');
+      _sinon2.default.spy(obj, 'handler');
       track.addEventListener('mute', handler1, false);
       track2.addEventListener('mute', handler2, false);
 
       track.source.stop();
       track2.stop();
-      _powerAssert2['default'].equal(obj.handler.callCount, 2);
+      _powerAssert2.default.equal(obj.handler.callCount, 2);
     });
 
     it('can set "onunmute" callback', function () {
@@ -220,14 +220,14 @@ describe('MediaStreamTrack', function () {
         obj.handler(e);
       };
 
-      _sinon2['default'].spy(obj, 'handler');
+      _sinon2.default.spy(obj, 'handler');
       track.onunmute = handler1;
       track2.onunmute = handler2;
 
       track.source.stop();
       track.source.start();
       track2.stop();
-      _powerAssert2['default'].equal(obj.handler.callCount, 2);
+      _powerAssert2.default.equal(obj.handler.callCount, 2);
     });
 
     it('fires "unmute" event when its value changes from true to false', function () {
@@ -242,14 +242,14 @@ describe('MediaStreamTrack', function () {
         obj.handler(e);
       };
 
-      _sinon2['default'].spy(obj, 'handler');
+      _sinon2.default.spy(obj, 'handler');
       track.addEventListener('unmute', handler1, false);
       track2.addEventListener('unmute', handler2, false);
 
       track.source.stop();
       track.source.start();
       track2.stop();
-      _powerAssert2['default'].equal(obj.handler.callCount, 2);
+      _powerAssert2.default.equal(obj.handler.callCount, 2);
     });
   });
 
@@ -283,9 +283,9 @@ describe('MediaStreamTrack', function () {
       };
 
       track.applyConstraints(constraints).then(function () {
-        _powerAssert2['default'].equal(track.source.settings.width, constraints.width);
-        _powerAssert2['default'].equal(track.source.settings.height, constraints.height);
-        _powerAssert2['default'].equal(track.source.settings.aspectRatio, constraints.aspectRatio);
+        _powerAssert2.default.equal(track.source.settings.width, constraints.width);
+        _powerAssert2.default.equal(track.source.settings.height, constraints.height);
+        _powerAssert2.default.equal(track.source.settings.aspectRatio, constraints.aspectRatio);
         done();
       });
     });
@@ -300,8 +300,8 @@ describe('MediaStreamTrack', function () {
       track.onoverconstrained = function (event) {
         var e = event.error;
         track.onoverconstrained = null;
-        _powerAssert2['default'].equal(e.name, 'OverconstrainedError');
-        _powerAssert2['default'].equal(e.constraintName, 'height');
+        _powerAssert2.default.equal(e.name, 'OverconstrainedError');
+        _powerAssert2.default.equal(e.constraintName, 'height');
         done();
       };
       track.applyConstraints(constraints);
@@ -318,8 +318,8 @@ describe('MediaStreamTrack', function () {
       track.addEventListener('overconstrained', function f1(event) {
         var e = event.error;
         track.removeEventListener('overconstrained', f1, false);
-        _powerAssert2['default'].equal(e.name, 'OverconstrainedError');
-        _powerAssert2['default'].equal(e.constraintName, 'aspectRatio');
+        _powerAssert2.default.equal(e.name, 'OverconstrainedError');
+        _powerAssert2.default.equal(e.constraintName, 'aspectRatio');
         done();
       }, false);
     });
@@ -328,8 +328,8 @@ describe('MediaStreamTrack', function () {
   describe('MediaStreamTrack.getCapabilities()', function () {
     it('can retrieve the capability', function () {
       var capabilities = track.getCapabilities();
-      _powerAssert2['default'].equal(capabilities.width.max, 1920);
-      _powerAssert2['default'].equal(capabilities.height.max, 1080);
+      _powerAssert2.default.equal(capabilities.width.max, 1920);
+      _powerAssert2.default.equal(capabilities.height.max, 1080);
     });
   });
 
@@ -341,14 +341,14 @@ describe('MediaStreamTrack', function () {
         aspectRatio: 1.5
       },
           constraints = track.getConstraints();
-      _powerAssert2['default'].equal(constraints, null);
+      _powerAssert2.default.equal(constraints, null);
 
       track.applyConstraints(constraintsToSet).then(function () {
         constraints = track.getConstraints();
-        _powerAssert2['default'].notEqual(constraints, null);
-        _powerAssert2['default'].equal(constraints.width, constraintsToSet.width);
-        _powerAssert2['default'].equal(constraints.height, constraintsToSet.height);
-        _powerAssert2['default'].equal(constraints.aspectRatio, constraintsToSet.aspectRatio);
+        _powerAssert2.default.notEqual(constraints, null);
+        _powerAssert2.default.equal(constraints.width, constraintsToSet.width);
+        _powerAssert2.default.equal(constraints.height, constraintsToSet.height);
+        _powerAssert2.default.equal(constraints.aspectRatio, constraintsToSet.aspectRatio);
         done();
       }, function (e) {
         console.log(e);
@@ -367,8 +367,8 @@ describe('MediaStreamTrack', function () {
 
       track.applyConstraints(constraints).then(function () {
         settings = track.getSettings();
-        _powerAssert2['default'].equal(settings.width, constraints.width);
-        _powerAssert2['default'].equal(settings.height, constraints.height);
+        _powerAssert2.default.equal(settings.width, constraints.width);
+        _powerAssert2.default.equal(settings.height, constraints.height);
         done();
       });
     });
@@ -388,9 +388,9 @@ describe('MediaStreamTrack', function () {
 
   it('should not throw an exception even when it is in "ended" state', function (done) {
     track.stop();
-    _powerAssert2['default'].equal(track.readyState, 'ended');
+    _powerAssert2.default.equal(track.readyState, 'ended');
     try {
-      var v = undefined;
+      var v = void 0;
       v = track.kind;
       v = track.id;
       v = track.label;
@@ -409,12 +409,12 @@ describe('MediaStreamTrack', function () {
 
   it('cannot be affected by anything when it is in "ended" state', function (done) {
     track.stop();
-    _powerAssert2['default'].equal(track.readyState, 'ended');
+    _powerAssert2.default.equal(track.readyState, 'ended');
     try {
-      var v = undefined;
+      var v = void 0;
       v = track.enabled;
       track.enabled = !v;
-      _powerAssert2['default'].equal(track.enabled, !v); // should change!
+      _powerAssert2.default.equal(track.enabled, !v); // should change!
       v = track.onmute;
       track.onmute = function () {};
       v = track.onunmute;

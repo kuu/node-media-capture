@@ -1,20 +1,10 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i]; return arr2; } else { return Array.from(arr); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _EventTarget2 = require('./EventTarget');
 
@@ -28,11 +18,21 @@ var _kontainerJs = require('kontainer-js');
 
 var _kontainerJs2 = _interopRequireDefault(_kontainerJs);
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var privateData = new WeakMap();
-var IsoBmff = _kontainerJs2['default'].IsoBmff;
+var IsoBmff = _kontainerJs2.default.IsoBmff;
 var MDAT_HEADER_SIZE = 8;
 
-var Muxer = (function () {
+var Muxer = function () {
   function Muxer(buffer) {
     _classCallCheck(this, Muxer);
 
@@ -127,7 +127,7 @@ var Muxer = (function () {
     value: function getMediaDataBox() {
       var buffer = this.buffer,
           buffList = [],
-          totalBuf = undefined;
+          totalBuf = void 0;
 
       buffer.tracks.forEach(function (track) {
         track.chunks.forEach(function (chunk) {
@@ -163,7 +163,7 @@ var Muxer = (function () {
       var trafs = this.getTrackFragmentBoxList(0, 0),
           moof = IsoBmff.createElement.apply(IsoBmff, ['moof', null, IsoBmff.createElement('mfhd', { sequenceNumber: this.sequenceNumber })].concat(_toConsumableArray(trafs)));
 
-      this.moofSize = _kontainerJs2['default'].renderToBuffer(moof).length;
+      this.moofSize = _kontainerJs2.default.renderToBuffer(moof).length;
       return this.moofSize;
     }
   }, {
@@ -176,14 +176,14 @@ var Muxer = (function () {
   }, {
     key: 'renderInitializationSegment',
     value: function renderInitializationSegment() {
-      var buf = _kontainerJs2['default'].renderToBuffer(this.getInitializationSegment());
+      var buf = _kontainerJs2.default.renderToBuffer(this.getInitializationSegment());
       this.byteOffset += buf.length;
       return buf;
     }
   }, {
     key: 'renderMediaSegment',
     value: function renderMediaSegment() {
-      var buf = _kontainerJs2['default'].renderToBuffer(this.getMediaSegment());
+      var buf = _kontainerJs2.default.renderToBuffer(this.getMediaSegment());
       this.byteOffset += buf.length;
       this.sequenceNumber++;
       return buf;
@@ -191,9 +191,9 @@ var Muxer = (function () {
   }]);
 
   return Muxer;
-})();
+}();
 
-var Sink = (function () {
+var Sink = function () {
   function Sink(recorder, trackId, enabled) {
     _classCallCheck(this, Sink);
 
@@ -210,9 +210,9 @@ var Sink = (function () {
   }]);
 
   return Sink;
-})();
+}();
 
-var MuxBuffer = (function () {
+var MuxBuffer = function () {
   function MuxBuffer() {
     _classCallCheck(this, MuxBuffer);
 
@@ -251,49 +251,49 @@ var MuxBuffer = (function () {
   }]);
 
   return MuxBuffer;
-})();
+}();
 
-var MediaRecorder = (function (_EventTarget) {
+var MediaRecorder = function (_EventTarget) {
   _inherits(MediaRecorder, _EventTarget);
 
   function MediaRecorder(stream, mimeType) {
-    var _this2 = this;
-
     _classCallCheck(this, MediaRecorder);
 
-    _get(Object.getPrototypeOf(MediaRecorder.prototype), 'constructor', this).call(this);
-    privateData.set(this, {
+    var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(MediaRecorder).call(this));
+
+    privateData.set(_this2, {
       stream: stream,
       mimeType: mimeType,
       state: 'inactive',
       buffer: null
     });
-    this.onstart = null;
-    this.onstop = null;
-    this.ondataavailable = null;
-    this.onpause = null;
-    this.onresume = null;
-    this.onerror = null;
-    this.ignoreMutedMedia = false;
-    this.initializationSegment = null;
-    this.needToIssueAnInitializationSegment = true;
+    _this2.onstart = null;
+    _this2.onstop = null;
+    _this2.ondataavailable = null;
+    _this2.onpause = null;
+    _this2.onresume = null;
+    _this2.onerror = null;
+    _this2.ignoreMutedMedia = false;
+    _this2.initializationSegment = null;
+    _this2.needToIssueAnInitializationSegment = true;
 
     var videoTracks = stream.getVideoTracks();
     var audioTracks = stream.getAudioTracks();
-    var buffer = privateData.get(this).buffer = new MuxBuffer();
+    var buffer = privateData.get(_this2).buffer = new MuxBuffer();
     var trackId = 0;
 
     videoTracks.forEach(function (videoTrack) {
       trackId = buffer.addTrack('video', videoTrack.source.settings);
-      _SourceManager2['default'].getInstance().addSink(videoTrack.id, new Sink(_this2, trackId, videoTrack.enabled));
+      _SourceManager2.default.getInstance().addSink(videoTrack.id, new Sink(_this2, trackId, videoTrack.enabled));
     });
 
     audioTracks.forEach(function (audioTrack) {
       trackId = buffer.addTrack('audio', audioTrack.source.settings);
-      _SourceManager2['default'].getInstance().addSink(audioTrack.id, new Sink(_this2, trackId, audioTrack.enabled));
+      _SourceManager2.default.getInstance().addSink(audioTrack.id, new Sink(_this2, trackId, audioTrack.enabled));
     });
 
-    this.muxer = new Muxer(buffer);
+    _this2.muxer = new Muxer(buffer);
+    return _this2;
   }
 
   _createClass(MediaRecorder, [{
@@ -361,7 +361,6 @@ var MediaRecorder = (function (_EventTarget) {
   }]);
 
   return MediaRecorder;
-})(_EventTarget3['default']);
+}(_EventTarget3.default);
 
-exports['default'] = MediaRecorder;
-module.exports = exports['default'];
+exports.default = MediaRecorder;

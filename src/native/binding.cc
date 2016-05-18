@@ -19,7 +19,7 @@ using v8::Persistent;
 const DeviceManager * const deviceManager = DeviceManager::getInstance();
 
 NAN_METHOD(GetSupportedCodecs) {
-  NanScope();
+
   const std::vector<const Device*> devices = deviceManager->getDevices();
   std::vector<std::string> supportedCodecs;
 
@@ -31,15 +31,14 @@ NAN_METHOD(GetSupportedCodecs) {
   }
 
   const int MIME_TYPES_NUM = supportedCodecs.size();
-  Local<Array> array = NanNew<Array>(MIME_TYPES_NUM);
+  Local<Array> array = Nan::New<Array>(MIME_TYPES_NUM);
   for (int i = 0; i < MIME_TYPES_NUM; i++) {
-    array->Set(i, NanNew<String>(supportedCodecs[i]));
+    array->Set(i, Nan::New(supportedCodecs[i]).ToLocalChecked());
   }
-  NanReturnValue(array);
+  info.GetReturnValue().Set(array);
 }
 
 NAN_METHOD(GetSupportedConstraints) {
-  NanScope();
   const std::vector<const Device*> devices = deviceManager->getDevices();
   std::vector<std::string> supportedConstraints;
 
@@ -50,11 +49,11 @@ NAN_METHOD(GetSupportedConstraints) {
     }
   }
 
-  Local<Object> obj = NanNew<Object>();
+  Local<Object> obj = Nan::New<Object>();
   for (unsigned i = 0; i < supportedConstraints.size(); i++) {
-    obj->Set(NanNew<String>(supportedConstraints[i]), NanTrue()); 
+    obj->Set(Nan::New(supportedConstraints[i]).ToLocalChecked(), Nan::True()); 
   }
-  NanReturnValue(obj);
+  info.GetReturnValue().Set(obj);
 }
 
 template <typename T>
@@ -177,27 +176,25 @@ std::vector<const KeyValue*>& getKeyValues(const MediaDeviceInfo *info) {
 }
 
 NAN_METHOD(GetAvailableDeviceInfo) {
-  NanScope();
-
   const std::vector<const Device*> devices = deviceManager->getDevices();
 
-  Local<Array> array = NanNew<Array>(devices.size());
+  Local<Array> array = Nan::New<Array>(devices.size());
   for (unsigned i = 0; i < devices.size(); i++) {
-    Local<Object> obj = NanNew<Object>();
+    Local<Object> obj = Nan::New<Object>();
     std::vector<const KeyValue*>& keyValueList = getKeyValues(devices[i]->GetDeviceInfo());
     for (unsigned j = 0; j < keyValueList.size(); j++) {
-      obj->Set(NanNew<String>(keyValueList[j]->key.c_str()), NanNew<String>(keyValueList[j]->value.c_str()));
+      obj->Set(Nan::New(keyValueList[j]->key.c_str()).ToLocalChecked(), Nan::New(keyValueList[j]->value.c_str()).ToLocalChecked());
     }
     array->Set(i, obj);
   }
-  NanReturnValue(array);
+  info.GetReturnValue().Set(array);
 }
 
 const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj) {
   Local<Value> value;
   std::vector<const Constraint *> *constraints = new std::vector<const Constraint *>();
 
-  if (!(value = ecmaObj->Get(NanNew<String>("width")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("width").ToLocalChecked()))->IsUndefined()) {
     uint32_t width = value->Uint32Value();
     constraints->push_back(
       new Constraint {
@@ -209,7 +206,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("height")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("height").ToLocalChecked()))->IsUndefined()) {
     uint32_t height = value->Uint32Value();
     constraints->push_back(
       new Constraint {
@@ -221,7 +218,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("aspectRatio")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("aspectRatio").ToLocalChecked()))->IsUndefined()) {
     double aspectRatio = value->NumberValue();
     constraints->push_back(
       new Constraint {
@@ -233,7 +230,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("frameRate")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("frameRate").ToLocalChecked()))->IsUndefined()) {
     double frameRate = value->NumberValue();
     constraints->push_back(
       new Constraint {
@@ -245,7 +242,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("facingMode")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("facingMode").ToLocalChecked()))->IsUndefined()) {
     std::string facingMode(*String::Utf8Value(value));
     constraints->push_back(
       new Constraint {
@@ -257,7 +254,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("volume")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("volume").ToLocalChecked()))->IsUndefined()) {
     double volume = value->NumberValue();
     constraints->push_back(
       new Constraint {
@@ -269,7 +266,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("sampleRate")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("sampleRate").ToLocalChecked()))->IsUndefined()) {
     uint32_t sampleRate = value->Uint32Value();
     constraints->push_back(
       new Constraint {
@@ -281,7 +278,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("sampleSize")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("sampleSize").ToLocalChecked()))->IsUndefined()) {
     uint32_t sampleSize = value->Uint32Value();
     constraints->push_back(
       new Constraint {
@@ -293,7 +290,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("channelCount")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("channelCount").ToLocalChecked()))->IsUndefined()) {
     double channelCount = value->NumberValue();
     constraints->push_back(
       new Constraint {
@@ -305,7 +302,7 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
     );
   }
 
-  if (!(value = ecmaObj->Get(NanNew<String>("echoCancellation")))->IsUndefined()) {
+  if (!(value = ecmaObj->Get(Nan::New("echoCancellation").ToLocalChecked()))->IsUndefined()) {
     bool echoCancellation = value->BooleanValue();
     constraints->push_back(
       new Constraint {
@@ -319,12 +316,12 @@ const std::vector<const Constraint *>& convertToConstraint(Local<Object> ecmaObj
   return *constraints;
 }
 
-static NanCallback *callback;
+static Nan::Callback *callback;
 
 static Local<Object> createErrorObject(const char *name, const char *message) {
-  Local<Object> obj = NanNew<Object>();
-  obj->Set(NanNew<String>("name"), NanNew<String>(name));
-  obj->Set(NanNew<String>("message"), NanNew<String>(message));
+  Local<Object> obj = Nan::New<Object>();
+  obj->Set(Nan::New("name").ToLocalChecked(), Nan::New(name).ToLocalChecked());
+  obj->Set(Nan::New("message").ToLocalChecked(), Nan::New(message).ToLocalChecked());
   return obj;
 }
 
@@ -332,13 +329,13 @@ void initDeviceCallback(const bool error) {
   if (error) {
     Local<Value> argv[] = {
       createErrorObject("AbortError", "Unable to initialize hardware."),
-      NanNull(),
+      Nan::Null(),
     };
     callback->Call(2, argv);
   } else {
     Local<Value> argv[] = {
-      NanNull(),
-      NanNew<Boolean>(error)
+      Nan::Null(),
+      Nan::New<Boolean>(error)
     };
     callback->Call(2, argv);
   }
@@ -346,51 +343,47 @@ void initDeviceCallback(const bool error) {
 
 //initDevice(deviceId, settings, cb)
 NAN_METHOD(InitDevice) {
-  NanScope();
-
-  const NanUtf8String *deviceIdStr = new NanUtf8String(args[0]);
+  const Nan::Utf8String *deviceIdStr = new Nan::Utf8String(info[0]);
   std::string deviceId(**deviceIdStr);
-  const std::vector<const Constraint *>& settings = convertToConstraint(args[1].As<Object>());
+  const std::vector<const Constraint *>& settings = convertToConstraint(info[1].As<Object>());
 
-  callback = new NanCallback(args[2].As<Function>());
+  callback = new Nan::Callback(info[2].As<Function>());
 
   const Device* device = deviceManager->getDevice(deviceId);
   if (device) {
     device->InitDevice(settings, initDeviceCallback);
   }
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //startDevice(deviceId)
 NAN_METHOD(StartDevice) {
-  NanScope();
-
-  const NanUtf8String *deviceIdStr = new NanUtf8String(args[0]);
+  const Nan::Utf8String *deviceIdStr = new Nan::Utf8String(info[0]);
   std::string deviceId(**deviceIdStr);
 
   const Device* device = deviceManager->getDevice(deviceId);
   if (device) {
     device->StartDevice();
   }
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 static Handle<Object> deviceData;
 static bool theresBufferToSend = false;
 
 Handle<Array> getSamplesArray(const std::vector<const Sample*> samples) {
-  Local<Array> array = NanNew<Array>(samples.size());
+  Local<Array> array = Nan::New<Array>(samples.size());
   for (unsigned i = 0; i < samples.size(); i++) {
-    Local<Object> obj = NanNew<Object>();
-    obj->Set(NanNew<String>("size"), NanNew<Number>(samples[i]->size));
-    //obj->Set(NanNew<String>("compositionTimeOffset"), NanNew<Number>(samples[i]->timeDelta));
+    Local<Object> obj = Nan::New<Object>();
+    obj->Set(Nan::New("size").ToLocalChecked(), Nan::New<Number>(samples[i]->size));
+    //obj->Set(Nan::New("compositionTimeOffset").ToLocalChecked(), Nan::New<Number>(samples[i]->timeDelta));
     array->Set(i, obj);
   }
   return array;
 }
 
 Handle<Object> getMetadataObject(const Metadata** metadata, const size_t metaLength) {
-  Local<Object> obj = NanNew<Object>();
+  Local<Object> obj = Nan::New<Object>();
 
   for (unsigned i = 0; i < metaLength; i++) {
     const Metadata *meta = metadata[i];
@@ -400,16 +393,16 @@ Handle<Object> getMetadataObject(const Metadata** metadata, const size_t metaLen
     switch (key) {
     case EMetadataSPS:
     case EMetadataPPS:
-      obj->Set(NanNew<String>(key == EMetadataSPS ? "sps" : "pps"), NanNewBufferHandle((char*)value.p, meta->size));
+      obj->Set(Nan::New(key == EMetadataSPS ? "sps" : "pps").ToLocalChecked(), Nan::NewBuffer((char*)value.p, meta->size).ToLocalChecked());
       break;
     case EMetadataSamples:
-      obj->Set(NanNew<String>("samples"), getSamplesArray(value.arr));
+      obj->Set(Nan::New("samples").ToLocalChecked(), getSamplesArray(value.arr));
       break;
     case EMetadataTimescale:
-      obj->Set(NanNew<String>("timeScale"), NanNew<Number>(value.l));
+      obj->Set(Nan::New("timeScale").ToLocalChecked(), Nan::New<Number>(value.l));
       break;
     case EMetadataBaseTimeOffset:
-      obj->Set(NanNew<String>("pts"), NanNew<Number>(value.ll));
+      obj->Set(Nan::New("pts").ToLocalChecked(), Nan::New<Number>(value.ll));
       break;
     }
   }
@@ -423,103 +416,94 @@ static void onData(const void * const data, size_t length, const Metadata** meta
       deviceData.Clear();
     }
 
-    deviceData = NanNew<Object>();
-    deviceData->Set(NanNew<String>("data"), NanNewBufferHandle((char*)data, length));
-    deviceData->Set(NanNew<String>("metadata"), getMetadataObject(metadata, metaLength));
+    deviceData = Nan::New<Object>();
+    deviceData->Set(Nan::New("data").ToLocalChecked(), Nan::NewBuffer((char*)data, length).ToLocalChecked());
+    deviceData->Set(Nan::New("metadata").ToLocalChecked(), getMetadataObject(metadata, metaLength));
     theresBufferToSend = true;
   }
 }
 
 //fetchDevice()
 NAN_METHOD(FetchDevice) {
-  NanScope();
-
-  const NanUtf8String *deviceIdStr = new NanUtf8String(args[0]);
+  const Nan::Utf8String *deviceIdStr = new Nan::Utf8String(info[0]);
   std::string deviceId(**deviceIdStr);
 
   const Device* device = deviceManager->getDevice(deviceId);
   if (!device) {
-    NanReturnUndefined();
+    info.GetReturnValue().Set(Nan::Undefined());
   } else {
     device->FetchDevice(onData);
     if (theresBufferToSend) {
       theresBufferToSend = false;
-      NanReturnValue(deviceData);
+      info.GetReturnValue().Set(deviceData);
     } else {
-      NanReturnUndefined();
+      info.GetReturnValue().Set(Nan::Undefined());
     }
   }
 }
 
 //stopDevice(deviceId)
 NAN_METHOD(StopDevice) {
-  NanScope();
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //pauseDevice(deviceId)
 NAN_METHOD(PauseDevice) {
-  NanScope();
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //resumeDevice(deviceId)
 NAN_METHOD(ResumeDevice) {
-  NanScope();
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //configureDevice(deviceId, settings)
 NAN_METHOD(ConfigureDevice) {
-  NanScope();
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //takeSnapshot(deviceId)
 NAN_METHOD(TakeSnapshot) {
-  NanScope();
-
-  const NanUtf8String *deviceIdStr = new NanUtf8String(args[0]);
+  const Nan::Utf8String *deviceIdStr = new Nan::Utf8String(info[0]);
   std::string deviceId(**deviceIdStr);
 
   const Device* device = deviceManager->getDevice(deviceId);
   if (device) {
     device->TakeSnapshot();
   }
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //getZeroInformationContent(deviceId)
 NAN_METHOD(GetZeroInformationContent) {
-  NanScope();
-  NanReturnUndefined();
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-void Init(Handle<Object> exports) {
-  exports->Set(NanNew<String>("getSupportedCodecs"),
-			      NanNew<FunctionTemplate>(GetSupportedCodecs)->GetFunction());
-  exports->Set(NanNew<String>("getSupportedConstraints"),
-			      NanNew<FunctionTemplate>(GetSupportedConstraints)->GetFunction());
-  exports->Set(NanNew<String>("getAvailableDeviceInfo"),
-			      NanNew<FunctionTemplate>(GetAvailableDeviceInfo)->GetFunction());
-  exports->Set(NanNew<String>("initDevice"),
-			      NanNew<FunctionTemplate>(InitDevice)->GetFunction());
-  exports->Set(NanNew<String>("startDevice"),
-			      NanNew<FunctionTemplate>(StartDevice)->GetFunction());
-  exports->Set(NanNew<String>("fetchDevice"),
-			      NanNew<FunctionTemplate>(FetchDevice)->GetFunction());
-  exports->Set(NanNew<String>("stopDevice"),
-			      NanNew<FunctionTemplate>(StopDevice)->GetFunction());
-  exports->Set(NanNew<String>("pauseDevice"),
-			      NanNew<FunctionTemplate>(PauseDevice)->GetFunction());
-  exports->Set(NanNew<String>("resumeDevice"),
-			      NanNew<FunctionTemplate>(ResumeDevice)->GetFunction());
-  exports->Set(NanNew<String>("configureDevice"),
-			      NanNew<FunctionTemplate>(ConfigureDevice)->GetFunction());
-  exports->Set(NanNew<String>("takeSnapshot"),
-			      NanNew<FunctionTemplate>(TakeSnapshot)->GetFunction());
-  exports->Set(NanNew<String>("getZeroInformationContent"),
-			      NanNew<FunctionTemplate>(GetZeroInformationContent)->GetFunction());
+void Init(Local<Object> exports) {
+  exports->Set(Nan::New("getSupportedCodecs").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(GetSupportedCodecs)->GetFunction());
+  exports->Set(Nan::New("getSupportedConstraints").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(GetSupportedConstraints)->GetFunction());
+  exports->Set(Nan::New("getAvailableDeviceInfo").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(GetAvailableDeviceInfo)->GetFunction());
+  exports->Set(Nan::New("initDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(InitDevice)->GetFunction());
+  exports->Set(Nan::New("startDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(StartDevice)->GetFunction());
+  exports->Set(Nan::New("fetchDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(FetchDevice)->GetFunction());
+  exports->Set(Nan::New("stopDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(StopDevice)->GetFunction());
+  exports->Set(Nan::New("pauseDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(PauseDevice)->GetFunction());
+  exports->Set(Nan::New("resumeDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(ResumeDevice)->GetFunction());
+  exports->Set(Nan::New("configureDevice").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(ConfigureDevice)->GetFunction());
+  exports->Set(Nan::New("takeSnapshot").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(TakeSnapshot)->GetFunction());
+  exports->Set(Nan::New("getZeroInformationContent").ToLocalChecked(),
+			      Nan::New<FunctionTemplate>(GetZeroInformationContent)->GetFunction());
 }
 
 NODE_MODULE(addon, Init)

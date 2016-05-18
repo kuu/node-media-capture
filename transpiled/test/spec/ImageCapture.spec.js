@@ -1,7 +1,5 @@
 'use strict';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 var _powerAssert = require('power-assert');
 
 var _powerAssert2 = _interopRequireDefault(_powerAssert);
@@ -10,8 +8,10 @@ var _ = require('../../..');
 
 var _2 = _interopRequireDefault(_);
 
-var navigator = _2['default'].navigator;
-var ImageCapture = _2['default'].ImageCapture;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var navigator = _2.default.navigator;
+var ImageCapture = _2.default.ImageCapture;
 
 /*global describe, it, beforeEach, afterEach*/
 
@@ -56,15 +56,15 @@ describe('ImageCapture', function () {
 
   it('has readonly members', function () {
     var cap = new ImageCapture(videoTrack);
-    _powerAssert2['default'].equal(canWrite(cap, 'photoCapabilities'), false);
-    _powerAssert2['default'].equal(canWrite(cap, 'videoStreamTrack'), false);
-    _powerAssert2['default'].equal(canWrite(cap, 'previewStream'), false);
+    _powerAssert2.default.equal(canWrite(cap, 'photoCapabilities'), false);
+    _powerAssert2.default.equal(canWrite(cap, 'videoStreamTrack'), false);
+    _powerAssert2.default.equal(canWrite(cap, 'previewStream'), false);
   });
 
   it('can revceive data', function (done) {
     var cap = new ImageCapture(videoTrack);
     cap.takePhoto().then(function (blob) {
-      _powerAssert2['default'].notEqual(blob, null);
+      _powerAssert2.default.notEqual(blob, null);
       done();
     }, function (e) {
       throw e;

@@ -1,7 +1,5 @@
 'use strict';
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
 var _powerAssert = require('power-assert');
 
 var _powerAssert2 = _interopRequireDefault(_powerAssert);
@@ -10,8 +8,10 @@ var _ = require('../../..');
 
 var _2 = _interopRequireDefault(_);
 
-var navigator = _2['default'].navigator;
-var MediaRecorder = _2['default'].MediaRecorder;
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var navigator = _2.default.navigator;
+var MediaRecorder = _2.default.MediaRecorder;
 
 /*global describe, it, beforeEach, afterEach*/
 
@@ -69,16 +69,16 @@ describe('MediaRecorder', function () {
 
   it('has readonly members', function () {
     var rec = new MediaRecorder(stream);
-    _powerAssert2['default'].equal(canWrite(rec, 'stream'), false);
-    _powerAssert2['default'].equal(canWrite(rec, 'mimeType'), false);
-    _powerAssert2['default'].equal(canWrite(rec, 'state'), false);
-    _powerAssert2['default'].equal(canWrite(rec, 'onstart'), true);
-    _powerAssert2['default'].equal(canWrite(rec, 'onstop'), true);
-    _powerAssert2['default'].equal(canWrite(rec, 'ondataavailable'), true);
-    _powerAssert2['default'].equal(canWrite(rec, 'onpause'), true);
-    _powerAssert2['default'].equal(canWrite(rec, 'onresume'), true);
-    _powerAssert2['default'].equal(canWrite(rec, 'onerror'), true);
-    _powerAssert2['default'].equal(canWrite(rec, 'ignoreMuteMedia'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'stream'), false);
+    _powerAssert2.default.equal(canWrite(rec, 'mimeType'), false);
+    _powerAssert2.default.equal(canWrite(rec, 'state'), false);
+    _powerAssert2.default.equal(canWrite(rec, 'onstart'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'onstop'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'ondataavailable'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'onpause'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'onresume'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'onerror'), true);
+    _powerAssert2.default.equal(canWrite(rec, 'ignoreMuteMedia'), true);
   });
 
   it('can revceive data', function (done) {

@@ -1,18 +1,10 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-var _get = function get(_x2, _x3, _x4) { var _again = true; _function: while (_again) { var object = _x2, property = _x3, receiver = _x4; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x2 = parent; _x3 = property; _x4 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _EventTarget2 = require('./EventTarget');
 
@@ -26,9 +18,17 @@ var _Util = require('./Util');
 
 var _Util2 = _interopRequireDefault(_Util);
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
 var privateData = new WeakMap();
 
-var MediaStreamTrack = (function (_EventTarget) {
+var MediaStreamTrack = function (_EventTarget) {
   _inherits(MediaStreamTrack, _EventTarget);
 
   _createClass(MediaStreamTrack, null, [{
@@ -43,16 +43,14 @@ var MediaStreamTrack = (function (_EventTarget) {
   }]);
 
   function MediaStreamTrack(kind, label) {
-    var _this = this;
-
-    var id = arguments.length <= 2 || arguments[2] === undefined ? _Util2['default'].issueId('track-') : arguments[2];
+    var id = arguments.length <= 2 || arguments[2] === undefined ? _Util2.default.issueId('track-') : arguments[2];
 
     _classCallCheck(this, MediaStreamTrack);
 
-    var track = undefined,
-        state = undefined;
+    var track = void 0,
+        state = void 0;
 
-    _get(Object.getPrototypeOf(MediaStreamTrack.prototype), 'constructor', this).call(this);
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(MediaStreamTrack).call(this));
 
     if (kind instanceof MediaStreamTrack) {
       track = kind;
@@ -60,13 +58,13 @@ var MediaStreamTrack = (function (_EventTarget) {
       label = track.label;
     }
 
-    this.constrants = track ? _Util2['default'].copyObject(track.constraints) : null;
-    this.onmute = null;
-    this.onunmute = null;
-    this.readonly = track ? track.readonly : true;
-    this.remote = track ? track.remote : false;
-    this.onended = null;
-    this.onoverconstrained = null;
+    _this.constrants = track ? _Util2.default.copyObject(track.constraints) : null;
+    _this.onmute = null;
+    _this.onunmute = null;
+    _this.readonly = track ? track.readonly : true;
+    _this.remote = track ? track.remote : false;
+    _this.onended = null;
+    _this.onoverconstrained = null;
 
     var startedHandler = function startedHandler() {
       var event = { type: 'unmute' };
@@ -84,30 +82,30 @@ var MediaStreamTrack = (function (_EventTarget) {
       }
     };
 
-    var source = _SourceManager2['default'].getInstance().attachSource(id, MediaStreamTrack.kindToSourceType(kind));
+    var source = _SourceManager2.default.getInstance().attachSource(id, MediaStreamTrack.kindToSourceType(kind));
 
     var event = { type: 'ended' };
 
     if (!source) {
       state = 'ended';
-      this.emit('ended', event);
+      _this.emit('ended', event);
     } else {
       source.addEventListener('started', startedHandler, false);
       source.addEventListener('stopped', stoppedHandler, false);
 
       if (track && track.readyState === 'ended') {
         state = 'ended';
-        this.emit('ended', event);
-        if (typeof this.onended === 'function') {
-          this.onended(event);
+        _this.emit('ended', event);
+        if (typeof _this.onended === 'function') {
+          _this.onended(event);
         }
       } else {
         state = 'live';
-        this.emit('started');
+        _this.emit('started');
       }
     }
 
-    privateData.set(this, {
+    privateData.set(_this, {
       kind: kind,
       id: id,
       label: label,
@@ -117,6 +115,7 @@ var MediaStreamTrack = (function (_EventTarget) {
       startedHandler: startedHandler,
       stoppedHandler: stoppedHandler
     });
+    return _this;
   }
 
   _createClass(MediaStreamTrack, [{
@@ -131,7 +130,7 @@ var MediaStreamTrack = (function (_EventTarget) {
       if (source) {
         source.removeEventListener('started', privateData.get(this).startedHandler, false);
         source.removeEventListener('stopped', privateData.get(this).stoppedHandler, false);
-        _SourceManager2['default'].getInstance().detachSource(this.id);
+        _SourceManager2.default.getInstance().detachSource(this.id);
       }
       var event = { type: 'ended', error: null };
       privateData.get(this).source = null;
@@ -164,7 +163,7 @@ var MediaStreamTrack = (function (_EventTarget) {
       if (!this.source) {
         return Promise.resolve();
       }
-      return _SourceManager2['default'].getInstance().applyConstraints(this.source, constraints).then(function (source) {
+      return _SourceManager2.default.getInstance().applyConstraints(this.source, constraints).then(function (source) {
         _this2.constraints = constraints;
         privateData.get(_this2).label = source.settings.label;
       }, function (e) {
@@ -201,7 +200,7 @@ var MediaStreamTrack = (function (_EventTarget) {
       if (privateData.get(this).enabled !== v) {
         privateData.get(this).enabled = v;
         if (this.source) {
-          _SourceManager2['default'].getInstance().enableSink(this.id, v);
+          _SourceManager2.default.getInstance().enableSink(this.id, v);
         }
       }
     }
@@ -226,7 +225,6 @@ var MediaStreamTrack = (function (_EventTarget) {
   }]);
 
   return MediaStreamTrack;
-})(_EventTarget3['default']);
+}(_EventTarget3.default);
 
-exports['default'] = MediaStreamTrack;
-module.exports = exports['default'];
+exports.default = MediaStreamTrack;
